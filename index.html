@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Mio Negozio</title>
+    <!-- Script di Telegram per integrare l'app nella chat -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* RESET CSS - Rimuove margini e padding di default */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* STILE BODY - Sfondo gradiente viola/rosa */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* CONTAINER PRINCIPALE - Centra il contenuto */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* HEADER - Intestazione del negozio con effetto vetro */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1); /* Trasparenza */
+            backdrop-filter: blur(10px); /* Effetto vetro */
+            border-radius: 35px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Bordo sottile */
+        }
+
+        /* TITOLO PRINCIPALE */
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* Ombra del testo */
+        }
+
+        /* SOTTOTITOLO */
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* CONTENITORE DELLE CATEGORIE */
+        .categories {
+            display: grid;
+            gap: 20px; /* Spazio tra le categorie */
+        }
+
+        /* SINGOLA CATEGORIA - Ogni sezione (Cake, Abbigliamento, ecc.) */
+        .category {
+            background: linear-gradient(100deg, #4e8dec 0%, #eb29c4 70%); /* Gradiente blu-rosa */
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Ombra */
+            border: 1px solid rgb(255, 255, 255);
+            backdrop-filter: blur(10px); /* Effetto vetro */
+        }
+         /*cornice cake */
+        .framed-title {
+            border: 4px double white;
+    padding: 15px 25px;
+    border-radius: 35px;
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(78,141,236,0.8), rgba(78,141,236,0.8));
+    box-shadow: 
+    2px 5px 20px rgba(0,0,0,0.9),
+     inset 0 1px 0 rgba(255,255,255,0.3);
+     margin-bottom: 10px;
+}
+
+    
+
+
+        /* TITOLO CATEGORIA (🎂 Cake, 👕 Abbigliamento, ecc.) */
+        .category h2 {
+            color: white;
+            font-size: 40px;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.9); /* Ombra forte */
+        }
+
+       /*lineasottocategory*/
+        .category h2::after {
+    content: '';
+    display: block;
+    width: 500px;
+    height: 15px;
+    background:linear-gradient(100deg,#eb29c4 0%, #4e8dec 100%);
+    border-radius: 10px; /* Angoli arrotondati */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Ombra come category */
+    border: 1.5px solid rgb(0, 0, 0); /* Bordo trasparente */
+    backdrop-filter: blur(10px); /* Effetto vetro */
+    margin: 10px auto 0; /* Centra la linea */
+    box-shadow: 
+    0 8px 16px rgba(0,0,0,0.3),           /* Ombra principale sotto */
+     0 4px 8px rgba(0,0,0,0.2),            /* Ombra secondaria */
+    inset 0 2px 4px rgba(255,255,255,0.3), /* Luce sopra (inset) */
+    inset 0 -2px 4px rgba(0,0,0,0.2);     /* Ombra sotto (inset) */
+    
+}
+
+        /* GRIGLIA DEI PRODOTTI - 2 colonne */
+        .products {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 colonne uguali */
+            gap: 15px; /* Spazio tra i prodotti */
+        }
+
+        /* SINGOLO PRODOTTO - Ogni carta prodotto */
+        .product {
+            background: linear-gradient(150deg, #dce3ee 10%, #d4b2ce 60%); /* Gradiente grigio-rosa */
+            border-radius: 35px;
+            padding: 10px;
+            border: 3px solid #ffffff; /* Bordo bianco */
+            transition: all 0.3s ease; /* Animazione al hover */
+            
+        }
+
+        /* EFFETTO HOVER SUI PRODOTTI - Si solleva quando ci passi sopra */
+        .product:hover {
+            transform: translateY(-5px); /* Solleva il prodotto */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Ombra più grande */
+        }
+
+        /* NOME DEL PRODOTTO */
+        .product-name {
+            font-weight: bold;
+            color: hsl(0, 0%, 0%);
+            margin-bottom: 5px;
+            margin-left: 50px;
+            text-align: center;
+            /*background: linear-gradient(135deg, #667eea, #764ba2); /* Gradiente per il testo */
+            background-color: #ffffff;
+            -webkit-background-clip: text; /* Applica il gradiente al testo */
+            background-clip: text;
+            font-size: 20px;
+            text-shadow: 2px 3px 10px rgba(0,0,0,0.4);
+            
+            
+        }
+          /*cornice prodotti*/
+        .product-frame-5 {
+    border: 3px solid #000000;
+    padding: 7px 22px;
+    border-radius: 35px;
+    display: inline-block;
+    background: #eb29c4;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
+    }
+        
+        
+       
+        /* DESCRIZIONE DEL PRODOTTO */
+        .product-description {
+            padding-top: 10px;
+            color: #000000;
+            font-size: 13px;
+            margin-bottom: 9px;
+            line-height: 1.7; /* Altezza delle righe */
+            font-weight: bold;
+        }
+
+        /* BADGE "PREMIUM QUALITY" - Etichetta speciale */
+        .frozen-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #e3d10e, #dd1515); /* Gradiente giallo-rosso */
+            color: rgb(0, 0, 0);
+            border-radius: 15px;
+            padding: 6px 15px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: none;
+            text-decoration: underline; /* Sottolineato */
+            text-decoration-color: #000000;
+            text-decoration-thickness: 1.5px;
+            text-underline-offset: 3px; /* Distanza della sottolineatura */
+            letter-spacing: 0.5px; /* Spaziatura tra le lettere */
+            margin-top: 20px;
+            margin-bottom: 1px;
+            
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6); /* Ombra colorata */
+        }
+
+        /* PREZZO DEL PRODOTTO */
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea; /* Colore blu */
+            margin-bottom: 15px;
+        }
+
+        /* PULSANTE ORDINA - Bottone per ordinare il prodotto */
+        .order-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradiente blu-viola */
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer; /* Cursore a manina */
+            width: 100%; /* Larghezza piena */
+            transition: all 0.3s ease; /* Animazione */
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); /* Ombra colorata */
+        }
+
+        /* EFFETTO HOVER SUL PULSANTE */
+        .order-btn:hover {
+            transform: translateY(-2px); /* Si solleva */
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6); /* Ombra più intensa */
+        }
+
+        /* EFFETTO CLICK SUL PULSANTE */
+        .order-btn:active {
+            transform: translateY(0); /* Torna alla posizione normale */
+        }
+
+        /* INDICATORE CARRELLO - Pallina fissa in basso a destra */
+        .cart-info {
+            position: fixed; /* Posizione fissa sullo schermo */
+            bottom: 20px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.9); /* Blu trasparente */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px; /* Completamente arrotondato */
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3); /* Ombra */
+            backdrop-filter: blur(10px); /* Effetto vetro */
+        }
+
+        /* RESPONSIVE DESIGN - Per schermi piccoli */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 24px; /* Titolo più piccolo su mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- INTESTAZIONE DEL NEGOZIO -->
+        <div class="header">
+            <h1>😈 NAME 😈</h1>
+            <p>Best Player in The Game</p>
+        </div>
+
+        <div class="categories">
+            <!-- CATEGORIA CAKE -->
+            <div class="category">
+                <h2><span class="framed-title"> MENU</span></h2>
+                <div class="products">
+                    <!-- PRODOTTO 1: Frozen 1 -->
+                    <div class="product">
+                        <div class="product-name product-frame-5">Frozen ❅</div>
+                        <div class="product-description">
+                            • Top Farm 🌏<br>
+                            • Best Cure 🧊<br>
+                            • High Terps Product 🦠
+                        </div>
+                        <div class="frozen-badge">◉ Premium Quality</div>
+                    </div>
+                    
+                    <!-- PRODOTTO 2: Frozen 2 -->
+                    <div class="product">
+                        <div class="product-name product-frame-5"> Frozen ❅</div>
+                        <div class="product-description">
+                            • Top Farm 🌏<br>
+                            • Best Cure 🧊<br>
+                            • High Terps Product 🦠</div>
+                        <div class="frozen-badge">◉ Top Quality</div>
+                    </div>
+                    
+                    <!-- PRODOTTO 3: Salad -->
+                    <div class="product">
+                        <div class="product-name product-frame-5">Salad 🌿</div>
+                        <div class="product-description"> 
+                            • Top Farm 🇺🇸🇪🇸<br>
+                            • Best Cure 🧊<br>
+                            • High Terps Product 🦠</div>
+                            <div class="frozen-badge">◉ Premium Quality</div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            
+
+            
+        </div>
+    </div>
+
+    <!-- INDICATORE CARRELLO (inizialmente nascosto) -->
+    <div class="cart-info" id="cartInfo" style="display: none;">
+        Carrello: <span id="cartCount">0</span> prodotti
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="script.js"></script>
+
+
+</body>
+</html>
