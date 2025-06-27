@@ -526,6 +526,7 @@ function generaCardProdotti(container, categoria) {
     }
 }
 
+
 // ==================== 🎴 CREA SINGOLA CARD PRODOTTO ====================
 function creaCardProdotto(prodotto) {
     const card = document.createElement('div');
@@ -535,7 +536,24 @@ function creaCardProdotto(prodotto) {
         color: white; text-align: center; cursor: pointer;
         transition: all 0.3s ease; border: 2px solid white;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative;
+        overflow: hidden;
     `;
+    
+    // Aggiungi banner strain
+    const strainBanner = document.createElement('div');
+    strainBanner.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.3);
+        padding: 3px 0;
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    `;
+    strainBanner.textContent = 'Premium';
     
     // Sanitizza dati per sicurezza
     const nomeSecure = Utils.sanitizeHTML(prodotto.nome);
@@ -543,14 +561,28 @@ function creaCardProdotto(prodotto) {
     
     // HTML della card (SOLO VISUALIZZAZIONE)
     card.innerHTML = `
-        <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">${nomeSecure}</div>
-        <div style="font-size: 12px; margin-bottom: 12px; opacity: 0.9;">${descrizioneSecure}</div>
+        <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px; margin-top: 15px;">${nomeSecure}</div>
+        <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">${descrizioneSecure}</div>
         
-        <!-- PREZZI PER QUANTITÀ -->
-        <div style="font-size: 11px; margin-bottom: 15px; line-height: 1.4;">
-            <div style="margin-bottom: 3px;">2g = €${Utils.formatPrice(prodotto.prezzi['2g'])} <span style="opacity: 0.7;">(€${Utils.formatPrice(prodotto.prezzi['2g']/2)}/g)</span></div>
-            <div style="margin-bottom: 3px;">5g = €${Utils.formatPrice(prodotto.prezzi['5g'])} <span style="color: #48bb78; font-weight: bold;">(-8%)</span></div>
-            <div>10g = €${Utils.formatPrice(prodotto.prezzi['10g'])} <span style="color: #48bb78; font-weight: bold;">(-17%)</span></div>
+        <!-- PREZZI PER QUANTITÀ - ANIMATI -->
+        <div style="display: flex; justify-content: space-between; gap: 8px; margin-left: 10px; margin-bottom: 15px;">
+            <div class="style" data-quantity="2g" </div>
+           
+                <div>2g</div>
+                <div style="font-weight: bold;padding: 8px 0; margin-left: -10px; ">€${Utils.formatPrice(prodotto.prezzi['2g'])}</div>
+            </div>
+            
+            <div class="style" data-quantity="5g" </div>
+                <div>5g</div>
+                <div style="font-weight: bold;padding: 8px 0; ">€${Utils.formatPrice(prodotto.prezzi['5g'])}</div>
+               
+            </div>
+            
+            <div class="style" data-quantity="10g" </div>
+                <div>10g</div>
+                <div style="font-weight: bold; padding: 8px 0; ">€${Utils.formatPrice(prodotto.prezzi['10g'])}</div>
+                
+            </div>
         </div>
         
         <!-- INDICATORE CLICK PER DETTAGLI -->
@@ -560,8 +592,27 @@ function creaCardProdotto(prodotto) {
         </div>
     `;
     
+    // Aggiungi banner strain
+    card.prepend(strainBanner);
+    
     // Setup eventi card (SOLO CLICK PER DETTAGLIO)
     setupEventiCardSemplificata(card, prodotto);
+    
+    // Animazioni bottoni prezzi (solo hover)
+    const priceBtns = card.querySelectorAll('.price-btn');
+    priceBtns.forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+            btn.style.background = 'rgba(255,255,255,0.3)';
+            btn.style.transform = 'translateY(-3px)';
+            btn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            btn.style.background = 'rgba(255,255,255,0.15)';
+            btn.style.transform = 'translateY(0)';
+            btn.style.boxShadow = 'none';
+        });
+    });
     
     return card;
 }
@@ -856,18 +907,10 @@ function selezionaQuantita(quantita, prezzo) {
         if (!titleElement) return;
         
         const nomeProdotto = titleElement.textContent;
-        
-        // Ordina direttamente
         const prodottoCompleto = `${nomeProdotto} (${AppState.strainSelezionata}) - ${quantita}`;
-        ordinaProdotto(prodottoCompleto, prezzo);
         
-        // Chiudi finestra dettaglio
-        const modal = document.querySelector('[style*="position: fixed"][style*="background: rgba(0, 0, 0, 0.8)"]');
-        if (modal) {
-            modal.remove();
-        }
-        
-        console.log(`Ordinato: ${prodottoCompleto} - €${prezzo}`);
+        // Mostra conferma prima di aggiungere al carrello
+        mostraConfermaQuantita(prodottoCompleto, prezzo);
     } catch (e) {
         Utils.handleError(e, 'selezione quantità');
     }
@@ -1007,36 +1050,72 @@ function aggiornaCarrello() {
     }
 }
 
-// ==================== ✅ MOSTRA CONFERMA ORDINE ====================
-function mostraConferma(nome, prezzo) {
+// ==================== ✅ MOSTRA CONFERMA QUANTITÀ ====================
+function mostraConfermaQuantita(prodottoCompleto, prezzo) {
     try {
         const notifica = document.createElement('div');
         notifica.style.cssText = `
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            background: linear-gradient(135deg, #764ba2 0%, #48bb78 100%);
             color: white; padding: 15px 25px; border-radius: 25px;
             font-weight: bold; z-index: 3000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3); animation: slideIn 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3); 
+            display: flex; flex-direction: column; align-items: center;
+            animation: slideIn 0.3s ease;
         `;
         
-        notifica.innerHTML = `✅ ${Utils.sanitizeHTML(nome)} aggiunto al carrello! €${Utils.formatPrice(prezzo)}`;
+        notifica.innerHTML = `
+            <div style="margin-bottom: 10px;">Aggiungere al carrello?</div>
+            <div style="font-size: 18px;">${Utils.sanitizeHTML(prodottoCompleto)}</div>
+            <div style="font-size: 20px; margin: 10px 0;">€${Utils.formatPrice(prezzo)}</div>
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <button id="confirmAddBtn" 
+                        style="background: white; color: #48bb78; border: none; 
+                               padding: 8px 20px; border-radius: 20px; font-weight: bold;
+                               cursor: pointer;">Sì</button>
+                <button id="cancelAddBtn" 
+                        style="background: rgba(255,255,255,0.3); color: white; border: none; 
+                               padding: 8px 20px; border-radius: 20px; font-weight: bold;
+                               cursor: pointer;">No</button>
+            </div>
+        `;
+        
         document.body.appendChild(notifica);
         
-        // Rimuovi dopo 3 secondi
+        // Gestisci conferma
+        document.getElementById('confirmAddBtn').addEventListener('click', () => {
+            ordinaProdotto(prodottoCompleto, prezzo);
+            notifica.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                if (notifica.parentNode) {
+                    notifica.remove();
+                }
+            }, 300);
+        });
+        
+        // Gestisci annullamento
+        document.getElementById('cancelAddBtn').addEventListener('click', () => {
+            notifica.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                if (notifica.parentNode) {
+                    notifica.remove();
+                }
+            }, 300);
+        });
+        
+        // Rimuovi automaticamente dopo 5 secondi
         setTimeout(() => {
             try {
-                notifica.style.animation = 'slideOut 0.3s ease forwards';
-                setTimeout(() => {
-                    if (notifica.parentNode) {
-                        document.body.removeChild(notifica);
-                    }
-                }, 300);
+                if (notifica.parentNode) {
+                    notifica.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => notifica.remove(), 300);
+                }
             } catch (err) {
                 console.warn('Errore rimozione notifica:', err);
             }
-        }, 3000);
+        }, 5000);
     } catch (e) {
-        Utils.handleError(e, 'mostra conferma');
+        Utils.handleError(e, 'mostra conferma quantità');
     }
 }
 
@@ -1188,5 +1267,8 @@ try {
     console.error('❌ Errore inizializzazione Telegram:', e);
 }
 
-//modificare il bottone per ordinare 'ci dev essere una conferma' in pratica un bottone aggiungi al carrello
-// modificare le animazioni dei bottoni dei prezzi,inserire un banner in stile strain sotto al nome prodotto"Gelato 41"
+// dividi il file inn piu parti fann uno dove potrai aggiungere facilmente i prodotti i nomi le info e i video
+// aggiustare lo stile dei bottoni creare unn altra variante piu compatta
+// rivedere il sistema degli sconti
+// andare avanti col carrello
+// integrazioni con tg
