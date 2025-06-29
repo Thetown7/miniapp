@@ -4,17 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Negozio</title>
-    <!-- Script di Telegram per integrare l'app nella chat -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* RESET CSS - Rimuove margini e padding di default */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* STILE BODY - Sfondo gradiente viola/rosa */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%);
@@ -22,257 +19,204 @@
             color: #333;
         }
 
-        /* CONTAINER PRINCIPALE - Centra il contenuto */
         .container {
             max-width: 600px;
             margin: 0 auto;
             padding: 10px;
         }
 
-        /* HEADER - Intestazione del negozio con effetto vetro */
         .header {
             text-align: center;
             margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.1); /* Trasparenza */
-            backdrop-filter: blur(10px); /* Effetto vetro */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 35px;
             padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2); /* Bordo sottile */
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* TITOLO PRINCIPALE */
         .header h1 {
             color: white;
             font-size: 28px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* Ombra del testo */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* SOTTOTITOLO */
         .header p {
             color: rgba(255, 255, 255, 0.9);
             font-size: 14px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        /* CONTENITORE DELLE CATEGORIE */
         .categories {
             display: grid;
-            gap: 20px; /* Spazio tra le categorie */
+            gap: 20px;
         }
 
-        /* SINGOLA CATEGORIA - Ogni sezione (Cake, Abbigliamento, ecc.) */
         .category {
-            background: linear-gradient(100deg, #4e8dec 0%, #eb29c4 70%); /* Gradiente blu-rosa */
+            background: linear-gradient(100deg, #4e8dec 0%, #eb29c4 70%);
             border-radius: 40px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Ombra */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             border: 1px solid rgb(255, 255, 255);
-            backdrop-filter: blur(10px); /* Effetto vetro */
+            backdrop-filter: blur(10px);
         }
-         /*cornice cake */
+
         .framed-title {
             border: 4px double white;
-    padding: 15px 25px;
-    border-radius: 35px;
-    display: inline-block;
-    background: linear-gradient(135deg, rgba(78,141,236,0.8), rgba(78,141,236,0.8));
-    box-shadow: 
-    2px 5px 20px rgba(0,0,0,0.9),
-     inset 0 1px 0 rgba(255,255,255,0.3);
-     margin-bottom: 10px;
-}
+            padding: 15px 25px;
+            border-radius: 35px;
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(78,141,236,0.8), rgba(78,141,236,0.8));
+            box-shadow: 2px 5px 20px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.3);
+            margin-bottom: 10px;
+        }
 
-    
-
-
-        /* TITOLO CATEGORIA (🎂 Cake, 👕 Abbigliamento, ecc.) */
         .category h2 {
             color: white;
             font-size: 40px;
             margin-bottom: 15px;
             text-align: center;
             padding-bottom: 10px;
-            text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.9); /* Ombra forte */
+            text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.9);
         }
 
-       /*lineasottocategory*/
         .category h2::after {
-    content: '';
-    display: block;
-    width: 500px;
-    height: 15px;
-    background:linear-gradient(100deg,#eb29c4 0%, #4e8dec 100%);
-    border-radius: 10px; /* Angoli arrotondati */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Ombra come category */
-    border: 1.5px solid rgb(0, 0, 0); /* Bordo trasparente */
-    backdrop-filter: blur(10px); /* Effetto vetro */
-    margin: 10px auto 0; /* Centra la linea */
-    box-shadow: 
-    0 8px 16px rgba(0,0,0,0.3),           /* Ombra principale sotto */
-     0 4px 8px rgba(0,0,0,0.2),            /* Ombra secondaria */
-    inset 0 2px 4px rgba(255,255,255,0.3), /* Luce sopra (inset) */
-    inset 0 -2px 4px rgba(0,0,0,0.2);     /* Ombra sotto (inset) */
-    
-}
+            content: '';
+            display: block;
+            width: 500px;
+            height: 15px;
+            background: linear-gradient(100deg,#eb29c4 0%, #4e8dec 100%);
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2),
+                        inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2);
+            border: 1.5px solid rgb(0, 0, 0);
+            backdrop-filter: blur(10px);
+            margin: 10px auto 0;
+        }
 
-        /* GRIGLIA DEI PRODOTTI - 2 colonne */
         .products {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 colonne uguali */
-            gap: 15px; /* Spazio tra i prodotti */
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        /* SINGOLO PRODOTTO - Ogni carta prodotto */
         .product {
-            background: linear-gradient(150deg, #dce3ee 10%, #d4b2ce 60%); /* Gradiente grigio-rosa */
+            background: linear-gradient(150deg, #dce3ee 10%, #d4b2ce 60%);
             border-radius: 35px;
             padding: 10px;
-            border: 3px solid #ffffff; /* Bordo bianco */
-            transition: all 0.3s ease; /* Animazione al hover */
-            
+            border: 3px solid #ffffff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
         }
 
-        /* EFFETTO HOVER SUI PRODOTTI - Si solleva quando ci passi sopra */
         .product:hover {
-            transform: translateY(-5px); /* Solleva il prodotto */
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); /* Ombra più grande */
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
-        /* NOME DEL PRODOTTO */
+        .product.expanded {
+            grid-column: 1 / -1;
+            z-index: 10;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+        }
+
         .product-name {
             font-weight: bold;
             color: hsl(0, 0%, 0%);
             margin-bottom: 5px;
             margin-left: 50px;
             text-align: center;
-            /*background: linear-gradient(135deg, #667eea, #764ba2); /* Gradiente per il testo */
             background-color: #ffffff;
-            -webkit-background-clip: text; /* Applica il gradiente al testo */
-            background-clip: text;
             font-size: 20px;
             text-shadow: 2px 3px 10px rgba(0,0,0,0.4);
-            
-            
         }
-          /*cornice prodotti*/
+
         .product-frame-5 {
-    border: 3px solid #000000;
-    padding: 7px 22px;
-    border-radius: 35px;
-    display: inline-block;
-    background: #eb29c4;
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
-    }
-        
-        
-       
-        /* DESCRIZIONE DEL PRODOTTO */
+            border: 3px solid #000000;
+            padding: 7px 22px;
+            border-radius: 35px;
+            display: inline-block;
+            background: #eb29c4;
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
+        }
+
         .product-description {
             padding-top: 10px;
             color: #000000;
             font-size: 13px;
             margin-bottom: 9px;
-            line-height: 1.7; /* Altezza delle righe */
+            line-height: 1.7;
             font-weight: bold;
         }
 
-        /* BADGE "PREMIUM QUALITY" - Etichetta speciale */
         .frozen-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #e3d10e, #dd1515); /* Gradiente giallo-rosso */
+            background: linear-gradient(135deg, #e3d10e, #dd1515);
             color: rgb(0, 0, 0);
             border-radius: 15px;
             padding: 6px 15px;
             font-size: 10px;
             font-weight: 700;
             text-transform: none;
-            text-decoration: underline; /* Sottolineato */
+            text-decoration: underline;
             text-decoration-color: #000000;
             text-decoration-thickness: 1.5px;
-            text-underline-offset: 3px; /* Distanza della sottolineatura */
-            letter-spacing: 0.5px; /* Spaziatura tra le lettere */
+            text-underline-offset: 3px;
+            letter-spacing: 0.5px;
             margin-top: 20px;
             margin-bottom: 1px;
-            
-            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6); /* Ombra colorata */
+            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
         }
 
-        /* PREZZO DEL PRODOTTO */
-        .product-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #667eea; /* Colore blu */
-            margin-bottom: 15px;
+        /* Animazioni */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(-50%) translateY(0); opacity: 1; }
+            to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
-        /* PULSANTE ORDINA - Bottone per ordinare il prodotto */
-        .order-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradiente blu-viola */
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer; /* Cursore a manina */
-            width: 100%; /* Larghezza piena */
-            transition: all 0.3s ease; /* Animazione */
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); /* Ombra colorata */
-        }
-
-        /* EFFETTO HOVER SUL PULSANTE */
-        .order-btn:hover {
-            transform: translateY(-2px); /* Si solleva */
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6); /* Ombra più intensa */
-        }
-
-        /* EFFETTO CLICK SUL PULSANTE */
-        .order-btn:active {
-            transform: translateY(0); /* Torna alla posizione normale */
-        }
-
-        /* INDICATORE CARRELLO - Pallina fissa in basso a destra */
-        .cart-info {
-            position: fixed; /* Posizione fissa sullo schermo */
-            bottom: 20px;
-            right: 20px;
-            background: rgba(102, 126, 234, 0.9); /* Blu trasparente */
-            color: white;
-            padding: 15px 20px;
-            border-radius: 50px; /* Completamente arrotondato */
-            font-weight: bold;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3); /* Ombra */
-            backdrop-filter: blur(10px); /* Effetto vetro */
-        }
-
-        /* RESPONSIVE DESIGN - Per schermi piccoli */
+        /* Responsive */
         @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .header h1 {
-                font-size: 24px; /* Titolo più piccolo su mobile */
-            }
+            .container { padding: 15px; }
+            .header h1 { font-size: 24px; }
+            .category h2::after { width: 90%; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- INTESTAZIONE DEL NEGOZIO -->
         <div class="header">
             <h1>😈 NAME 😈</h1>
             <p>Best Player in The Game</p>
         </div>
 
         <div class="categories">
-            <!-- CATEGORIA CAKE -->
             <div class="category">
-                <h2><span class="framed-title"> MENU</span></h2>
+                <h2><span class="framed-title">MENU</span></h2>
                 <div class="products">
-                    <!-- PRODOTTO 1: Frozen 1 -->
-                    <div class="product">
+                    <div class="product" data-category="frozen1">
                         <div class="product-name product-frame-5">Frozen ❅</div>
                         <div class="product-description">
                             • Top Farm 🌏<br>
@@ -282,47 +226,1380 @@
                         <div class="frozen-badge">◉ Premium Quality</div>
                     </div>
                     
-                    <!-- PRODOTTO 2: Frozen 2 -->
-                    <div class="product">
-                        <div class="product-name product-frame-5"> Frozen ❅</div>
+                    <div class="product" data-category="frozen2">
+                        <div class="product-name product-frame-5">Frozen ❅</div>
                         <div class="product-description">
                             • Top Farm 🌏<br>
                             • Best Cure 🧊<br>
-                            • High Terps Product 🦠</div>
+                            • High Terps Product 🦠
+                        </div>
                         <div class="frozen-badge">◉ Top Quality</div>
                     </div>
                     
-                    <!-- PRODOTTO 3: Salad -->
-                    <div class="product">
+                    <div class="product" data-category="salad">
                         <div class="product-name product-frame-5">Salad 🌿</div>
-                        <div class="product-description"> 
+                        <div class="product-description">
                             • Top Farm 🇺🇸🇪🇸<br>
                             • Best Cure 🧊<br>
-                            • High Terps Product 🦠</div>
-                            <div class="frozen-badge">◉ Premium Quality</div>
-                        
+                            • High Terps Product 🦠
+                        </div>
+                        <div class="frozen-badge">◉ Premium Quality</div>
                     </div>
                 </div>
             </div>
-
-            
-
-            
         </div>
     </div>
 
-    
+    <script>
+    // ==================== CONFIG ====================
+    const catalogoProdotti = {
+        'frozen1': [
+            { 
+                nome: 'Gelato 41', 
+                descrizione: 'Premium Indoor',
+                strains: ['Indica Dominant', 'Hybrid 50/50', 'Sativa Leaning'],
+                prezzi: { '2g': 25, '5g': 55, '10g': 100 },
+                media: { type: 'image', url: 'https://i.ibb.co/bgZND9tz/Screenshot-2023-10-25-alle-22-01-20.png' }
+            },
+            { 
+                nome: 'Zkittlez', 
+                descrizione: 'Sweet & Fruity',
+                strains: ['Indica Pure', 'Hybrid Sweet'],
+                prezzi: { '2g': 22, '5g': 50, '10g': 90 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/764ba2/white?text=Zkittlez' }
+            },
+            { 
+                nome: 'Purple Haze', 
+                descrizione: 'Classic Strain',
+                strains: ['Sativa Classic', 'Hybrid Purple'],
+                prezzi: { '2g': 30, '5g': 65, '10g': 120 },
+                media: { type: 'video', url: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+            }
+        ],
+        'frozen2': [
+            { 
+                nome: 'OG Kush', 
+                descrizione: 'West Coast Classic',
+                strains: ['Indica OG', 'Hybrid Classic'],
+                prezzi: { '2g': 20, '5g': 45, '10g': 80 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/ea66d2/white?text=OG+Kush' }
+            },
+            { 
+                nome: 'White Widow', 
+                descrizione: 'Amsterdam Special',
+                strains: ['Hybrid Balanced', 'Sativa White'],
+                prezzi: { '2g': 24, '5g': 52, '10g': 95 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/48bb78/white?text=White+Widow' }
+            }
+        ],
+        'salad': [
+            { 
+                nome: 'Amnesia Haze', 
+                descrizione: 'Sativa Power',
+                strains: ['Sativa Power', 'Hybrid Energetic'],
+                prezzi: { '2g': 18, '5g': 40, '10g': 75 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/ff6b6b/white?text=Amnesia+Haze' }
+            },
+            { 
+                nome: 'Lemon Haze', 
+                descrizione: 'Citrus Flavor',
+                strains: ['Sativa Citrus', 'Hybrid Lemon'],
+                prezzi: { '2g': 16, '5g': 35, '10g': 65 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/ffa502/white?text=Lemon+Haze' }
+            },
+            { 
+                nome: 'Jack Herer', 
+                descrizione: 'The Legend',
+                strains: ['Sativa Legend', 'Hybrid Classic', 'Indica Relax'],
+                prezzi: { '2g': 26, '5g': 58, '10g': 105 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/3742fa/white?text=Jack+Herer' }
+            }
+        ]
+    };
 
-    <!-- Scripts organizzati in file separati -->
-    <script src="js/config.js"></script>
-    <script src="js/state.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/telegram.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/cart.js"></script>
-   
-    <script src="js/cart-modal.js"></script>
-    <script src="js/main.js"></script>
+    // ==================== STATE ====================
+    const AppState = {
+        carrello: [],
+        totaleCarrello: 0,
+        strainSelezionata: null,
+        categoriaEspansa: null,
+        
+        aggiungiAlCarrello(prodotto) {
+            this.carrello.push(prodotto);
+            this.totaleCarrello += prodotto.prezzo;
+            this.notificaCambiamento();
+        },
+        
+        svuotaCarrello() {
+            this.carrello = [];
+            this.totaleCarrello = 0;
+            this.notificaCambiamento();
+        },
+        
+        rimuoviDalCarrello(index) {
+            if (index >= 0 && index < this.carrello.length) {
+                this.totaleCarrello -= this.carrello[index].prezzo;
+                this.carrello.splice(index, 1);
+                this.notificaCambiamento();
+            }
+        },
+        
+        notificaCambiamento() {
+            aggiornaBadgeCarrello();
+            setupMainButton();
+            inviaStatoATelegram();
+        }
+    };
+
+    // ==================== UTILS ====================
+    const Utils = {
+        debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        },
+        
+        sanitizeHTML(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        },
+        
+        formatPrice(price) {
+            return typeof price === 'number' ? price.toFixed(0) : '0';
+        },
+        
+        validateProduct(prodotto) {
+            return prodotto && 
+                   prodotto.nome && 
+                   prodotto.prezzi && 
+                   prodotto.strains && 
+                   Array.isArray(prodotto.strains) &&
+                   typeof prodotto.prezzi === 'object';
+        },
+        
+        handleError(error, context = '') {
+            console.error(`Errore ${context}:`, error);
+            if (tg.showAlert) {
+                tg.showAlert(`Si è verificato un errore. Riprova.`);
+            }
+        }
+    };
+
+    // ==================== TELEGRAM ====================
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const TelegramIntegration = {
+        applicaTema() {
+            try {
+                if (tg.colorScheme && tg.themeParams) {
+                    const themeParams = tg.themeParams;
+                    if (themeParams.bg_color) {
+                        document.documentElement.style.setProperty('--tg-bg-color', themeParams.bg_color);
+                    }
+                    if (themeParams.text_color) {
+                        document.documentElement.style.setProperty('--tg-text-color', themeParams.text_color);
+                    }
+                }
+            } catch (e) {
+                console.warn('Impossibile applicare tema Telegram:', e);
+            }
+        },
+        
+        gestisciViewport() {
+            try {
+                if (tg.onEvent) {
+                    tg.onEvent('viewportChanged', () => {
+                        const viewport = tg.viewportHeight;
+                        if (viewport) {
+                            document.body.style.minHeight = `${viewport}px`;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('Impossibile gestire viewport:', e);
+            }
+        },
+        
+        inviaData(dati) {
+            try {
+                if (tg.sendData) {
+                    tg.sendData(JSON.stringify(dati));
+                    return true;
+                }
+            } catch (error) {
+                Utils.handleError(error, 'invio dati a Telegram');
+                return false;
+            }
+            return false;
+        }
+    };
+
+    function setupMainButton() {
+        try {
+            if (!tg.MainButton) return;
+            
+            if (AppState.carrello.length > 0) {
+                tg.MainButton.setText(`Ordina (€${AppState.totaleCarrello})`);
+                tg.MainButton.show();
+                
+                tg.MainButton.offClick(processaOrdineFinale);
+                tg.MainButton.onClick(processaOrdineFinale);
+            } else {
+                tg.MainButton.hide();
+            }
+        } catch (e) {
+            console.warn('Impossibile configurare MainButton:', e);
+        }
+    }
+
+    function inviaStatoATelegram() {
+        const dati = {
+            azione: 'aggiornamento_stato',
+            carrello: AppState.carrello,
+            totale: AppState.totaleCarrello,
+            timestamp: Date.now()
+        };
+        
+        TelegramIntegration.inviaData(dati);
+    }
+
+    function processaOrdineFinale() {
+        try {
+            const datiOrdine = {
+                azione: 'ordine_finale',
+                carrello: AppState.carrello,
+                totale: AppState.totaleCarrello,
+                timestamp: Date.now(),
+                user_id: tg.initDataUnsafe?.user?.id || 'unknown'
+            };
+            
+            if (TelegramIntegration.inviaData(datiOrdine)) {
+                if (tg.showAlert) {
+                    tg.showAlert('Ordine inviato con successo!');
+                }
+                AppState.svuotaCarrello();
+            }
+        } catch (e) {
+            Utils.handleError(e, 'processo ordine finale');
+        }
+    }
+
+    // ==================== UI FUNCTIONS ====================
+    function setupKeyboardNavigation() {
+        document.addEventListener('keydown', (e) => {
+            try {
+                switch(e.key) {
+                    case 'Escape':
+                        chiudiCategorieEspanse();
+                        chiudiModali();
+                        break;
+                    case 'Enter':
+                        if (e.target.classList.contains('product')) {
+                            e.target.click();
+                        }
+                        break;
+                }
+            } catch (err) {
+                console.warn('Errore keyboard navigation:', err);
+            }
+        });
+    }
+
+    function chiudiCategorieEspanse() {
+        try {
+            document.querySelectorAll('.product.expanded').forEach(p => {
+                const elementiOriginali = p.querySelectorAll('.product-description, .frozen-badge, .product-name');
+                elementiOriginali.forEach(elemento => {
+                    elemento.style.display = '';
+                    setTimeout(() => elemento.style.opacity = '1', 10);
+                });
+                
+                const container = p.querySelector('.real-products-injected');
+                if (container) {
+                    container.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        try {
+                            if (container.parentNode) {
+                                container.remove();
+                            }
+                            const closeBtn = p.querySelector('button[style*="position: absolute"]');
+                            if (closeBtn && closeBtn.parentNode) {
+                                closeBtn.remove();
+                            }
+                            p.classList.remove('expanded');
+                            p.style.gridColumn = '';
+                            p.style.minHeight = '';
+                            p.style.padding = '';
+                            AppState.categoriaEspansa = null;
+                        } catch (err) {
+                            console.warn('Errore pulizia DOM:', err);
+                        }
+                    }, 300);
+                }
+            });
+        } catch (e) {
+            Utils.handleError(e, 'chiusura categorie espanse');
+        }
+    }
+
+    function chiudiModali() {
+        try {
+            document.querySelectorAll('[style*="position: fixed"][style*="z-index"]').forEach(modal => {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            });
+        } catch (e) {
+            console.warn('Errore chiusura modali:', e);
+        }
+    }
+
+    function espandiProdotto(productElement, categoria) {
+        try {
+            if (!catalogoProdotti[categoria]) {
+                console.warn('Dati categoria non validi');
+                return;
+            }
+            
+            productElement.classList.add('expanded');
+            productElement.style.gridColumn = '1 / -1';
+            productElement.style.transition = 'all 0.5s ease';
+            productElement.style.minHeight = '400px';
+            productElement.style.padding = '20px';
+            
+            AppState.categoriaEspansa = categoria;
+            
+            const elementiOriginali = productElement.querySelectorAll('.product-description, .frozen-badge, .product-name');
+            elementiOriginali.forEach(elemento => {
+                elemento.style.transition = 'opacity 0.3s ease';
+                elemento.style.opacity = '0';
+                setTimeout(() => elemento.style.display = 'none', 300);
+            });
+            
+            const container = creaContainerProdotti();
+            const closeBtn = creaBottoneChiudi(productElement, container);
+            
+            generaCardProdotti(container, categoria);
+            
+            productElement.appendChild(container);
+            productElement.appendChild(closeBtn);
+            
+        } catch (e) {
+            Utils.handleError(e, 'espansione prodotto');
+        }
+    }
+
+    function creaContainerProdotti() {
+        const container = document.createElement('div');
+        container.className = 'real-products-injected';
+        container.style.cssText = `
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            animation: fadeIn 0.5s ease;
+        `;
+        return container;
+    }
+
+    function creaBottoneChiudi(productElement, container) {
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '×';
+        closeBtn.style.cssText = `
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255, 255, 255, 0.9); border: 2px solid #764ba2;
+            width: 35px; height: 35px; border-radius: 50%;
+            font-size: 24px; cursor: pointer; z-index: 10;
+            color: #764ba2; font-weight: bold; transition: all 0.3s ease;
+        `;
+        
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            chiudiCategorieEspanse();
+        });
+        
+        return closeBtn;
+    }
+
+    function generaCardProdotti(container, categoria) {
+        try {
+            const prodotti = catalogoProdotti[categoria] || [];
+            
+            prodotti.forEach(prodotto => {
+                if (Utils.validateProduct(prodotto)) {
+                    const card = creaCardProdotto(prodotto);
+                    container.appendChild(card);
+                } else {
+                    console.warn('Prodotto non valido saltato:', prodotto);
+                }
+            });
+        } catch (e) {
+            Utils.handleError(e, 'generazione card prodotti');
+        }
+    }
+
+    function creaCardProdotto(prodotto) {
+        const card = document.createElement('div');
+        card.style.cssText = `
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-top: 10px; border-radius: 20px; padding: 15px;
+            color: white; text-align: center; cursor: pointer;
+            transition: all 0.3s ease; border: 2px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative;
+            overflow: hidden;
+        `;
+        
+        const strainBanner = document.createElement('div');
+        strainBanner.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.3);
+            padding: 3px 0;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        `;
+        strainBanner.textContent = 'Premium';
+        
+        const nomeSecure = Utils.sanitizeHTML(prodotto.nome);
+        const descrizioneSecure = Utils.sanitizeHTML(prodotto.descrizione);
+        
+        card.innerHTML = `
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px; margin-top: 15px;">${nomeSecure}</div>
+            <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">${descrizioneSecure}</div>
+            
+            <div style="display: flex; justify-content: space-between; gap: 8px; margin-left: 10px; margin-bottom: 15px;">
+                <div class="style" data-quantity="2g">
+                    <div>2g</div>
+                    <div style="font-weight: bold;padding: 8px 0; margin-left: -10px;">€${Utils.formatPrice(prodotto.prezzi['2g'])}</div>
+                </div>
+                
+                <div class="style" data-quantity="5g">
+                    <div>5g</div>
+                    <div style="font-weight: bold;padding: 8px 0;">€${Utils.formatPrice(prodotto.prezzi['5g'])}</div>
+                </div>
+                
+                <div class="style" data-quantity="10g">
+                    <div>10g</div>
+                    <div style="font-weight: bold; padding: 8px 0;">€${Utils.formatPrice(prodotto.prezzi['10g'])}</div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 15px; 
+                        font-size: 12px; font-weight: bold; border: 1px solid rgba(255,255,255,0.3);">
+                👆 Click per Dettagli
+            </div>
+        `;
+        
+        card.prepend(strainBanner);
+        
+        setupEventiCardSemplificata(card, prodotto);
+        
+        const priceBtns = card.querySelectorAll('.price-btn');
+        priceBtns.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.background = 'rgba(255,255,255,0.3)';
+                btn.style.transform = 'translateY(-3px)';
+                btn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.background = 'rgba(255,255,255,0.15)';
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
+        });
+        
+        return card;
+    }
+
+    function setupEventiCardSemplificata(card, prodotto) {
+        try {
+            const debouncedClick = Utils.debounce(() => {
+                creaFinestraDettaglio(prodotto.nome, prodotto.prezzi, prodotto.descrizione, prodotto.strains, prodotto.media);
+            }, 300);
+            
+            card.addEventListener('click', debouncedClick);
+            
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'scale(1.05)';
+                card.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+                card.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            });
+        } catch (e) {
+            Utils.handleError(e, 'setup eventi card');
+        }
+    }
+
+    function creaFinestraDettaglio(nomeProdotto, prezzi, descrizione, strains, media) {
+        try {
+            AppState.strainSelezionata = null;
+            
+            if (!nomeProdotto || !prezzi || !strains) {
+                console.warn('Dati prodotto incompleti');
+                return;
+            }
+            
+            const overlay = creaOverlayDettaglio();
+            const finestra = creaFinestraModal();
+            
+            popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains);
+            
+            if (media && media.url) {
+                setTimeout(() => mostraMediaProdotto(nomeProdotto.replace(/\s+/g, ''), media), 100);
+            }
+            
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    AppState.strainSelezionata = null;
+                }
+            });
+            
+            overlay.appendChild(finestra);
+            document.body.appendChild(overlay);
+            
+        } catch (e) {
+            Utils.handleError(e, 'creazione finestra dettaglio');
+        }
+    }
+
+    function creaOverlayDettaglio() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8); display: flex;
+            justify-content: center; align-items: center; z-index: 2000;
+        `;
+        return overlay;
+    }
+
+    function creaFinestraModal() {
+        const finestra = document.createElement('div');
+        finestra.style.cssText = `
+            width: 450px; height: 600px; background: white;
+            border-radius: 40px; border: 3px solid #ffff;
+            position: relative; overflow-y: auto; overflow-x: hidden;
+            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        `;
+        return finestra;
+    }
+
+    function generaTabellaPrecci(prezzi) {
+        try {
+            const prezzoBase = prezzi['2g'] / 2;
+            const quantita = ['2g', '5g', '10g'];
+            const grammi = [2, 5, 10];
+            const sconti = [0, 22, 17];
+            
+            let tabella = '<div style="display: flex; gap: 8px; justify-content: space-between;">';
+            
+            quantita.forEach((q, index) => {
+                const grammo = grammi[index];
+                const sconto = sconti[index];
+                const prezzoTeorico = prezzoBase * grammo;
+                const prezzoFinale = Math.round(prezzoTeorico * (1 - sconto/100));
+                const colorPrezzo = sconto > 0 ? '#48bb78' : '#667eea';
+                
+                tabella += `
+                    <div class="price-btn" data-quantity="${q}" data-sconto="${sconto}" 
+                         style="flex: 1; text-align: center; padding: 1px 5px; 
+                                border-radius: 15px; cursor: pointer; transition: all 0.2s ease;
+                                border: 2px solid ${colorPrezzo}; background: white;
+                                font-size: 20px; min-height: 50px; display: flex;
+                                flex-direction: column; justify-content: center;">
+                        
+                        <div class="quantita-label" style="font-weight: bold; font-size: 15px;">${q}</div>
+                        
+                        <div class="prezzo-valore" style="color: ${colorPrezzo}; font-weight: bold;">
+                            €${Utils.formatPrice(prezzoFinale)}
+                            ${sconto > 0 ? `<br><small class="percentuale-sconto">(-${sconto}%)</small>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            tabella += '</div>';
+            return tabella;
+        } catch (e) {
+            Utils.handleError(e, 'generazione tabella prezzi');
+            return '<div>Errore caricamento prezzi</div>';
+        }
+    }
+
+    function popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains) {
+        try {
+            const nomeSecure = Utils.sanitizeHTML(nomeProdotto);
+            const descrizioneSecure = Utils.sanitizeHTML(descrizione);
+            
+            const dropdownOptions = strains.map(strain => {
+                const strainSecure = Utils.sanitizeHTML(strain);
+                return `<div onclick="selectStrain('${strainSecure}', '${nomeSecure}')" 
+                              style="padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee;
+                                     transition: background 0.2s ease; font-weight: 500;"
+                              onmouseover="this.style.background='#f0f7ff'"
+                              onmouseout="this.style.background='white'">
+                            ${strainSecure}
+                         </div>`;
+            }).join('');
+            
+            finestra.innerHTML = `
+                <div style="background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%); margin-bottom: -30px; 
+                            height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; width: 400px; height: 250px; border-radius: 20px;
+                                position: relative; overflow: hidden;">
+                        <div id="mediaPreview-${nomeProdotto.replace(/\s+/g, '')}" style="width: 100%; height: 100%; display: flex; 
+                                                              align-items: center; justify-content: center; position: relative;">
+                            <div style="font-size: 18px; color: #666;">📷 Immagine Prodotto</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 30px;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 10px;">
+                        <div id="strainButton" onclick="toggleStrainDropdown()" 
+                             style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-left: 200px; margin-top: 10px;
+                                    padding: 7px 10px; border-radius: 15px; cursor: pointer;
+                                   font-size: 15px; font-weight: bold; display: flex; align-items: center;
+                                    gap: 8px; min-width: 200px; justify-content: space-between;">
+                            <span>🧬 Scegli Strain</span>
+                            <span id="dropdownArrow">▼</span>
+                        </div>
+                    <h2 style="margin-top: -35px; font-size: 25px;">${nomeSecure}</h2>
+                    
+                        <div id="strainDropdown" style="display: none; position: absolute; top: 100%; left: 0;
+                                                       background: white; border: 2px solid #667eea; border-radius: 15px;
+                                                       box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 100; 
+                                                       min-width: 250px; margin-top: 5px; overflow: hidden;">
+                            ${dropdownOptions}
+                        </div>
+                    </div>
+                    
+                    <p style="color: #000; margin: 20px 0 30px 0; font-weight: bold; line-height: 1.5;">${descrizioneSecure}</p>
+                    
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+                        ${generaTabellaPrecci(prezzi)}
+                    </div>
+                    
+                    <button id="orderButton" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px; width: 100%; border-radius: 30px; font-size: 20px; font-weight: bold; opacity: 0.5; cursor: not-allowed; transition: all 0.3s ease;">
+                        Seleziona Strain per Continuare
+                    </button>
+                </div>
+            `;
+            
+            const orderButton = finestra.querySelector('#orderButton');
+            let selectedQuantity = null;
+            
+            const priceBtns = finestra.querySelectorAll('.price-btn');
+            priceBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!AppState.strainSelezionata) return;
+                    
+                    priceBtns.forEach(b => {
+                        b.classList.remove('selected');
+                        
+                        const quantitaLabel = b.querySelector('.quantita-label');
+                        if (quantitaLabel) {
+                            quantitaLabel.style.color = '';
+                            quantitaLabel.style.textShadow = '';
+                        }
+                        
+                        const prezzoValore = b.querySelector('.prezzo-valore');
+                        if (prezzoValore) {
+                            prezzoValore.style.color = '';
+                            prezzoValore.style.textShadow = '';
+                            Array.from(prezzoValore.querySelectorAll('*')).forEach(child => {
+                                child.style.color = '';
+                                child.style.textShadow = '';
+                            });
+                        }
+                        
+                        const percentuale = b.querySelector('.percentuale-sconto');
+                        if (percentuale) {
+                            percentuale.style.color = '';
+                            percentuale.style.textShadow = '';
+                        }
+                        
+                        b.style.background = 'white';
+                    });
+                    
+                    btn.classList.add('selected');
+                    
+                    const quantitaLabel = btn.querySelector('.quantita-label');
+                    if (quantitaLabel) {
+                        quantitaLabel.style.setProperty('color', 'white', 'important');
+                        quantitaLabel.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+                    }
+                    
+                    const prezzoValore = btn.querySelector('.prezzo-valore');
+                    if (prezzoValore) {
+                        prezzoValore.style.setProperty('color', 'white', 'important');
+                        prezzoValore.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+                        Array.from(prezzoValore.querySelectorAll('*')).forEach(child => {
+                            child.style.setProperty('color', 'white', 'important');
+                            child.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+                        });
+                    }
+                    
+                    const percentuale = btn.querySelector('.percentuale-sconto');
+                    if (percentuale) {
+                        percentuale.style.setProperty('color', 'white', 'important');
+                        percentuale.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+                    }
+                    
+                    const sconto = parseInt(btn.getAttribute('data-sconto'));
+                    if (sconto > 0) {
+                        btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #43e97b 100%)';
+                    } else {
+                        btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    }
+                    
+                    selectedQuantity = btn.getAttribute('data-quantity');
+                    orderButton.style.opacity = '1';
+                    orderButton.style.cursor = 'pointer';
+                    orderButton.innerHTML = `ORDINA`;
+                });
+            });
+            
+            orderButton.addEventListener('click', function() {
+                if (AppState.strainSelezionata && selectedQuantity) {
+                    const prezzo = prezzi[selectedQuantity] || 0;
+                    const prodottoCompleto = `${nomeProdotto} (${AppState.strainSelezionata}) - ${selectedQuantity}`;
+                    ordinaProdotto(prodottoCompleto, prezzo);
+                    chiudiModali();
+                }
+            });
+        } catch (e) {
+            Utils.handleError(e, 'popolamento finestra dettaglio');
+        }
+    }
+
+    window.toggleStrainDropdown = function() {
+        try {
+            const dropdown = document.getElementById('strainDropdown');
+            const arrow = document.getElementById('dropdownArrow');
+            
+            if (!dropdown || !arrow) return;
+            
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                dropdown.style.display = 'block';
+                dropdown.style.animation = 'fadeIn 0.2s ease';
+                arrow.style.transform = 'rotate(180deg)';
+                arrow.style.transition = 'transform 0.2s ease';
+            } else {
+                dropdown.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        } catch (e) {
+            Utils.handleError(e, 'toggle dropdown strain');
+        }
+    };
+
+    window.selectStrain = function(strain, nomeProdotto) {
+        try {
+            AppState.strainSelezionata = strain;
+            
+            const strainButton = document.getElementById('strainButton');
+            if (strainButton) {
+                strainButton.innerHTML = `
+                    <span>🧬 ${Utils.sanitizeHTML(strain)}</span>
+                    <span id="dropdownArrow" style="transform: rotate(0deg); transition: transform 0.2s ease;">▼</span>
+                `;
+                strainButton.onclick = () => toggleStrainDropdown();
+            }
+            
+            const dropdown = document.getElementById('strainDropdown');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+            
+            const orderButton = document.getElementById('orderButton');
+            if (orderButton) {
+                orderButton.style.opacity = '1';
+                orderButton.style.cursor = 'pointer';
+                orderButton.innerHTML = `SCEGLI QUANTITÀ`;
+            }
+            
+            console.log(`Strain selezionata: ${strain} per ${nomeProdotto}`);
+        } catch (e) {
+            Utils.handleError(e, 'selezione strain');
+        }
+    };
+
+    function mostraMediaProdotto(prodottoNome, media) {
+        try {
+            const preview = document.getElementById(`mediaPreview-${prodottoNome}`);
+            if (!preview) {
+                console.log('Preview non trovato per:', prodottoNome);
+                return;
+            }
+            
+            console.log('Caricando media:', media.url);
+            preview.innerHTML = '';
+            
+            if (media.type === 'image') {
+                const img = document.createElement('img');
+                img.src = media.url;
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 20px;';
+                
+                img.onload = () => console.log('Immagine caricata:', media.url);
+                img.onerror = () => {
+                    console.log('Errore caricamento:', media.url);
+                    preview.innerHTML = '<div style="font-size: 18px; color: #666;">📷 Immagine Non Disponibile</div>';
+                };
+                
+                preview.appendChild(img);
+                
+            } else if (media.type === 'video') {
+                const video = document.createElement('video');
+                video.src = media.url;
+                video.controls = true;
+                video.style.cssText = 'width: 100%; height: 100%; border-radius: 20px; object-fit: cover;';
+                
+                video.onerror = () => {
+                    preview.innerHTML = '<div style="font-size: 18px; color: #666;">🎥 Video Non Disponibile</div>';
+                };
+                
+                preview.appendChild(video);
+                
+            } else {
+                preview.innerHTML = '<div style="font-size: 18px; color: #666;">📷 Formato Non Supportato</div>';
+            }
+        } catch (e) {
+            Utils.handleError(e, 'mostra media prodotto');
+        }
+    }
+
+    // ==================== CART FUNCTIONS ====================
+    function ordinaProdotto(nome, prezzo) {
+        try {
+            const prodotto = { 
+                nome: Utils.sanitizeHTML(nome), 
+                prezzo: typeof prezzo === 'number' ? prezzo : parseFloat(prezzo) || 0,
+                timestamp: Date.now()
+            };
+            
+            AppState.aggiungiAlCarrello(prodotto);
+            mostraConferma(prodotto.nome, prodotto.prezzo);
+            
+            animaBottoneCarrello();
+            
+            TelegramIntegration.inviaData({
+                azione: 'ordine',
+                prodotto: prodotto.nome,
+                prezzo: prodotto.prezzo,
+                carrello: AppState.carrello,
+                totale: AppState.totaleCarrello,
+                timestamp: Date.now()
+            });
+        } catch (e) {
+            Utils.handleError(e, 'aggiunta al carrello');
+        }
+    }
+
+    function mostraConferma(nomeProdotto, prezzo) {
+        try {
+            const notifica = document.createElement('div');
+            notifica.style.cssText = `
+                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: linear-gradient(135deg, #48bb78 0%, #46d1a1 100%);
+                color: white; padding: 15px 25px; border-radius: 25px;
+                font-weight: bold; z-index: 3000;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3); 
+                display: flex; flex-direction: column; align-items: center;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notifica.innerHTML = `
+                <div style="margin-bottom: 10px;">✅ Aggiunto al carrello!</div>
+                <div style="font-size: 18px;">${Utils.sanitizeHTML(nomeProdotto)}</div>
+                <div style="font-size: 20px; margin-top: 5px;">€${Utils.formatPrice(prezzo)}</div>
+            `;
+            
+            document.body.appendChild(notifica);
+            
+            setTimeout(() => {
+                notifica.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => {
+                    if (notifica.parentNode) {
+                        notifica.remove();
+                    }
+                }, 300);
+            }, 3000);
+        } catch (e) {
+            Utils.handleError(e, 'mostra conferma');
+        }
+    }
+
+    // ==================== CART MODAL ====================
+    function creaBottoneCarrelloFlottante() {
+        const oldCartInfo = document.getElementById('cartInfo');
+        if (oldCartInfo) oldCartInfo.remove();
+        
+        const cartButton = document.createElement('div');
+        cartButton.id = 'floatingCartButton';
+        cartButton.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 3px solid white;
+        `;
+        
+        cartButton.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+            this.style.boxShadow = '0 12px 35px rgba(0,0,0,0.4)';
+            mostraTooltipCarrello(this);
+        });
+        
+        cartButton.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+            rimuoviTooltipCarrello();
+        });
+        
+        cartButton.addEventListener('click', function() {
+            rimuoviTooltipCarrello();
+            apriModaleCarrello();
+        });
+        
+        document.body.appendChild(cartButton);
+        aggiornaBadgeCarrello();
+    }
+
+    function aggiornaBadgeCarrello() {
+        const cartButton = document.getElementById('floatingCartButton');
+        if (!cartButton) return;
+        
+        const itemCount = AppState.carrello.length;
+        
+        cartButton.innerHTML = `
+            <div style="position: relative;">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 2L6 9H3l3 7h12l3-7h-3l-3-7H9z"/>
+                    <path d="M9 16v5m6-5v5"/>
+                </svg>
+                ${itemCount > 0 ? `
+                    <div style="position: absolute; top: -10px; right: -10px; 
+                                background: #ff4757; color: white; 
+                                width: 24px; height: 24px; border-radius: 50%;
+                                display: flex; align-items: center; justify-content: center;
+                                font-size: 12px; font-weight: bold;
+                                border: 2px solid white;">
+                        ${itemCount}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    function mostraTooltipCarrello(button) {
+        rimuoviTooltipCarrello();
+        
+        if (AppState.carrello.length === 0) return;
+        
+        const tooltip = document.createElement('div');
+        tooltip.id = 'cartTooltip';
+        tooltip.style.cssText = `
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            animation: fadeIn 0.2s ease;
+            z-index: 1001;
+        `;
+        
+        tooltip.innerHTML = `
+            🛒 ${AppState.carrello.length} prodotti<br>
+            💰 Totale: €${AppState.totaleCarrello}
+        `;
+        
+        document.body.appendChild(tooltip);
+    }
+
+    function rimuoviTooltipCarrello() {
+        const tooltip = document.getElementById('cartTooltip');
+        if (tooltip) tooltip.remove();
+    }
+
+    function apriModaleCarrello() {
+        const overlay = document.createElement('div');
+        overlay.id = 'cartModalOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        const header = creaHeaderModaleCarrello();
+        const content = creaContenutoCarrello();
+        const footer = creaFooterCarrello();
+        
+        modal.appendChild(header);
+        modal.appendChild(content);
+        if (AppState.carrello.length > 0) {
+            modal.appendChild(footer);
+        }
+        
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                chiudiModaleCarrello();
+            }
+        });
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    }
+
+    function creaHeaderModaleCarrello() {
+        const header = document.createElement('div');
+        header.style.cssText = `
+            background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%);
+            padding: 25px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        `;
+        
+        header.innerHTML = `
+            <h2 style="margin: 0; font-size: 24px;">
+                🛒 Il Tuo Carrello
+            </h2>
+            <button onclick="chiudiModaleCarrello()" 
+                    style="background: rgba(255,255,255,0.2); 
+                           border: 2px solid white;
+                           color: white; 
+                           width: 40px; height: 40px;
+                           border-radius: 50%; 
+                           font-size: 24px;
+                           cursor: pointer;
+                           display: flex;
+                           align-items: center;
+                           justify-content: center;
+                           transition: all 0.3s ease;">
+                ×
+            </button>
+        `;
+        
+        return header;
+    }
+
+    function creaContenutoCarrello() {
+        const content = document.createElement('div');
+        content.style.cssText = `
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        `;
+        
+        if (AppState.carrello.length === 0) {
+            content.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">🛒</div>
+                    <h3 style="color: #666; margin-bottom: 10px;">Il carrello è vuoto</h3>
+                    <p style="color: #999;">Aggiungi prodotti per continuare</p>
+                </div>
+            `;
+        } else {
+            AppState.carrello.forEach((prodotto, index) => {
+                const item = creaItemCarrello(prodotto, index);
+                content.appendChild(item);
+            });
+        }
+        
+        return content;
+    }
+
+    function creaItemCarrello(prodotto, index) {
+        const item = document.createElement('div');
+        item.style.cssText = `
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        `;
+        
+        const [nomeProdotto, info] = prodotto.nome.split(' (');
+        const strainQuantita = info ? info.replace(')', '') : '';
+        
+        item.innerHTML = `
+            <div style="flex: 1;">
+                <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 5px;">
+                    ${Utils.sanitizeHTML(nomeProdotto)}
+                </div>
+                <div style="font-size: 14px; color: #667eea;">
+                    🧬 ${Utils.sanitizeHTML(strainQuantita)}
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-weight: bold; font-size: 18px; color: #48bb78;">
+                    €${Utils.formatPrice(prodotto.prezzo)}
+                </div>
+                
+                <button onclick="rimuoviDalCarrello(${index})"
+                        style="background: #ff4757;
+                               color: white;
+                               border: none;
+                               width: 35px;
+                               height: 35px;
+                               border-radius: 50%;
+                               cursor: pointer;
+                               display: flex;
+                               align-items: center;
+                               justify-content: center;
+                               transition: all 0.3s ease;
+                               font-size: 20px;"
+                        onmouseover="this.style.transform='scale(1.1)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                    🗑️
+                </button>
+            </div>
+        `;
+        
+        item.addEventListener('mouseenter', () => {
+            item.style.transform = 'translateX(5px)';
+            item.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.style.transform = 'translateX(0)';
+            item.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        });
+        
+        return item;
+    }
+
+    function creaFooterCarrello() {
+        const footer = document.createElement('div');
+        footer.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-top: 2px solid #f0f0f0;
+        `;
+        
+        footer.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="font-size: 20px; font-weight: bold; color: #333;">
+                    Totale:
+                </div>
+                <div style="font-size: 28px; font-weight: bold; color: #48bb78;">
+                    €${AppState.totaleCarrello}
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="svuotaCarrelloConConferma()"
+                        style="background: #ff4757;
+                               color: white;
+                               border: none;
+                               padding: 15px 25px;
+                               border-radius: 25px;
+                               font-size: 16px;
+                               font-weight: bold;
+                               cursor: pointer;
+                               transition: all 0.3s ease;"
+                        onmouseover="this.style.transform='translateY(-2px)'"
+                        onmouseout="this.style.transform='translateY(0)'">
+                    🗑️ Svuota
+                </button>
+                
+                <button onclick="procediAlCheckout()"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                               color: white;
+                               border: none;
+                               padding: 15px 25px;
+                               border-radius: 25px;
+                               font-size: 16px;
+                               font-weight: bold;
+                               cursor: pointer;
+                               flex: 1;
+                               transition: all 0.3s ease;
+                               box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);"
+                        onmouseover="this.style.transform='translateY(-2px)'"
+                        onmouseout="this.style.transform='translateY(0)'">
+                    Procedi all'Ordine ➜
+                </button>
+            </div>
+        `;
+        
+        return footer;
+    }
+
+    window.rimuoviDalCarrello = function(index) {
+        AppState.rimuoviDalCarrello(index);
+        
+        const overlay = document.getElementById('cartModalOverlay');
+        if (overlay) {
+            overlay.remove();
+            apriModaleCarrello();
+        }
+        
+        aggiornaBadgeCarrello();
+    };
+
+    window.svuotaCarrelloConConferma = function() {
+        if (confirm('Sei sicuro di voler svuotare il carrello?')) {
+            AppState.svuotaCarrello();
+            chiudiModaleCarrello();
+            aggiornaBadgeCarrello();
+            
+            const notifica = document.createElement('div');
+            notifica.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #ff4757;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 25px;
+                font-weight: bold;
+                z-index: 3000;
+                animation: slideIn 0.3s ease;
+            `;
+            notifica.textContent = '🗑️ Carrello svuotato!';
+            
+            document.body.appendChild(notifica);
+            
+            setTimeout(() => {
+                notifica.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => notifica.remove(), 300);
+            }, 2000);
+        }
+    };
+
+    window.procediAlCheckout = function() {
+        chiudiModaleCarrello();
+        processaOrdineFinale();
+    };
+
+    window.chiudiModaleCarrello = function() {
+        const overlay = document.getElementById('cartModalOverlay');
+        if (overlay) {
+            overlay.style.animation = 'fadeOut 0.3s ease forwards';
+            const modal = overlay.querySelector('div');
+            if (modal) {
+                modal.style.animation = 'slideOut 0.3s ease forwards';
+            }
+            setTimeout(() => overlay.remove(), 300);
+        }
+    };
+
+    function animaBottoneCarrello() {
+        const cartButton = document.getElementById('floatingCartButton');
+        if (!cartButton) return;
+        
+        cartButton.style.animation = 'pulse 0.6s ease';
+        
+        setTimeout(() => {
+            cartButton.style.animation = '';
+        }, 600);
+    }
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            TelegramIntegration.applicaTema();
+            TelegramIntegration.gestisciViewport();
+            
+            setupKeyboardNavigation();
+            
+            const products = document.querySelectorAll('.product');
+            
+            products.forEach(product => {
+                const categoria = product.getAttribute('data-category');
+                
+                if (!catalogoProdotti[categoria]) {
+                    console.warn(`Categoria non valida: ${categoria}`);
+                    return;
+                }
+                
+                product.style.cursor = 'pointer';
+                
+                const debouncedExpand = Utils.debounce(() => {
+                    if (product.classList.contains('expanded')) return;
+                    
+                    chiudiCategorieEspanse();
+                    espandiProdotto(product, categoria);
+                }, 200);
+                
+                product.addEventListener('click', debouncedExpand);
+            });
+            
+            setupMainButton();
+            creaBottoneCarrelloFlottante();
+            
+        } catch (e) {
+            Utils.handleError(e, 'inizializzazione DOM');
+        }
+    });
+
+    try {
+        tg.ready();
+        console.log('🚀 Telegram Mini App inizializzata con successo');
+    } catch (e) {
+        console.error('❌ Errore inizializzazione Telegram:', e);
+    }
+    </script>
 </body>
 </html>
