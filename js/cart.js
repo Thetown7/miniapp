@@ -14,6 +14,9 @@ function ordinaProdotto(nome, prezzo) {
         AppState.aggiungiAlCarrello(prodotto);
         mostraConferma(prodotto.nome, prodotto.prezzo);
         
+        // Anima il bottone carrello
+        animaBottoneCarrello();
+        
         // Invia dati a Telegram
         TelegramIntegration.inviaData({
             azione: 'ordine',

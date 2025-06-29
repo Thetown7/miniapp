@@ -27,6 +27,18 @@ if (!document.getElementById('expansion-animations')) {
             to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
         }
         
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
         .product.expanded {
             z-index: 10;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;

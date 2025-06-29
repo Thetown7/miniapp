@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Setup iniziale main button
         setupMainButton();
         
+        // Inizializza bottone carrello flottante
+        creaBottoneCarrelloFlottante();
+        
     } catch (e) {
         Utils.handleError(e, 'inizializzazione DOM');
     }

@@ -356,45 +356,38 @@ function creaFinestraModal() {
 function generaTabellaPrecci(prezzi) {
     try {
         const prezzoBase = prezzi['2g'] / 2;
-        
         const quantita = ['2g', '5g', '10g'];
         const grammi = [2, 5, 10];
         const sconti = [0, 22, 17];
         
-        // 🎯 CONTAINER ORIZZONTALE (FLEX)
         let tabella = '<div style="display: flex; gap: 8px; justify-content: space-between;">';
         
         quantita.forEach((q, index) => {
             const grammo = grammi[index];
             const sconto = sconti[index];
-            
             const prezzoTeorico = prezzoBase * grammo;
             const prezzoFinale = Math.round(prezzoTeorico * (1 - sconto/100));
-            const percentualeScontata = sconto > 0 ? `<br><small>(-${sconto}%)</small>` : '';
             const colorPrezzo = sconto > 0 ? '#48bb78' : '#667eea';
-            
-            // 🎯 OGNI PREZZO COME BOTTONE COMPATTO
+            // AGGIUNGO CLASSE JS PER SELEZIONE
             tabella += `
-                <div onclick="selezionaQuantita('${q}', ${prezzoFinale})" 
+                <div class="price-btn" data-quantity="${q}" data-sconto="${sconto}" 
                      style="flex: 1; text-align: center; padding: 1px 5px; 
                             border-radius: 15px; cursor: pointer; transition: all 0.2s ease;
                             border: 2px solid ${colorPrezzo}; background: white;
                             font-size: 20px; min-height: 50px; display: flex;
-                            flex-direction: column; justify-content: center;"
-                     onmouseover="this.style.background='${colorPrezzo}'; this.style.color='white'"
-                     onmouseout="this.style.background='white'; this.style.color='black'">
+                            flex-direction: column; justify-content: center;">
                     
-                    <div style="font-weight: bold; font-size: 15px;">${q}</div>
-                    <div style="color: ${colorPrezzo}; font-weight: bold;">
-                        €${Utils.formatPrice(prezzoFinale)}${percentualeScontata}
+                    <div class="quantita-label" style="font-weight: bold; font-size: 15px;">${q}</div>
+                    
+                    <div class="prezzo-valore" style="color: ${colorPrezzo}; font-weight: bold;">
+                        €${Utils.formatPrice(prezzoFinale)}
+                        ${sconto > 0 ? `<br><small class="percentuale-sconto">(-${sconto}%)</small>` : ''}
                     </div>
                 </div>
             `;
         });
-        
         tabella += '</div>';
         return tabella;
-        
     } catch (e) {
         Utils.handleError(e, 'generazione tabella prezzi');
         return '<div>Errore caricamento prezzi</div>';
@@ -455,28 +448,151 @@ function popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, st
                 </div>
                 
                 <p style="color: #000; margin: 20px 0 30px 0; font-weight: bold; line-height: 1.5;">${descrizioneSecure}</p>
-                
                 <!-- TABELLA PREZZI CLICCABILI -->
-               
                 <div style="background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-                
-                    
-                ${generaTabellaPrecci(prezzi)}
-            </div>
-                      
-                
-                
-                <button id="orderButton" onclick="processOrder('${nomeSecure}', '${JSON.stringify(prezzi).replace(/"/g, '&quot;')}')" 
-                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                               color: white; border: none; padding: 15px; width: 100%;
-                               border-radius: 30px; font-size: 20px; font-weight: bold;
-                               opacity: 0.5; cursor: not-allowed; transition: all 0.3s ease;">
+                    ${generaTabellaPrecci(prezzi)}
+                </div>
+                <!-- BOTTONE ORDINA -->
+                <button id="orderButton" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px; width: 100%; border-radius: 30px; font-size: 20px; font-weight: bold; opacity: 0.5; cursor: not-allowed; transition: all 0.3s ease;">
                     Seleziona Strain per Continuare
                 </button>
             </div>
         `;
+        // Logica JS per abilitare il bottone solo dopo selezione strain e quantità
+        const orderButton = finestra.querySelector('#orderButton');
+        let selectedQuantity = null;
+        // Gestione selezione quantità
+        const priceBtns = finestra.querySelectorAll('.price-btn');
+priceBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (!AppState.strainSelezionata) return;
+        
+        // RESET: Rimuovi selezioni precedenti
+        priceBtns.forEach(b => {
+            b.classList.remove('selected');
+            
+            // ✅ Reset quantità (FUNZIONA)
+            const quantitaLabel = b.querySelector('.quantita-label');
+            if (quantitaLabel) {
+                quantitaLabel.style.color = '';
+                quantitaLabel.style.textShadow = '';
+            }
+            
+            // ✅ Reset prezzo (ORA FUNZIONA!)
+            const prezzoValore = b.querySelector('.prezzo-valore');
+            if (prezzoValore) {
+                prezzoValore.style.color = '';
+                prezzoValore.style.textShadow = '';
+                Array.from(prezzoValore.querySelectorAll('*')).forEach(child => {
+                    child.style.color = '';
+                    child.style.textShadow = '';
+                });
+            }
+            
+            // ✅ Reset percentuale (ORA FUNZIONA!)
+            const percentuale = b.querySelector('.percentuale-sconto');
+            if (percentuale) {
+                percentuale.style.color = '';
+                percentuale.style.textShadow = '';
+            }
+            
+            b.style.background = 'white';
+        });
+        
+        // SELEZIONE: Applica colori bianchi
+        btn.classList.add('selected');
+        
+        // ✅ Quantità bianca
+        const quantitaLabel = btn.querySelector('.quantita-label');
+        if (quantitaLabel) {
+            quantitaLabel.style.setProperty('color', 'white', 'important');
+            quantitaLabel.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+        }
+        
+        // ✅ Prezzo bianco (FINALMENTE!)
+        const prezzoValore = btn.querySelector('.prezzo-valore');
+        if (prezzoValore) {
+            prezzoValore.style.setProperty('color', 'white', 'important');
+            prezzoValore.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+            Array.from(prezzoValore.querySelectorAll('*')).forEach(child => {
+                child.style.setProperty('color', 'white', 'important');
+                child.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+            });
+        }
+        
+        // ✅ Percentuale bianca (ANCHE QUESTO!)
+        const percentuale = btn.querySelector('.percentuale-sconto');
+        if (percentuale) {
+            percentuale.style.setProperty('color', 'white', 'important');
+            percentuale.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+        }
+        
+        // Sfondo gradiente
+        const sconto = parseInt(btn.getAttribute('data-sconto'));
+        if (sconto > 0) {
+            btn.style.background = 'linear-gradient(135deg, #48bb78 0%, #43e97b 100%)';
+        } else {
+            btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        }
+        
+        selectedQuantity = btn.getAttribute('data-quantity');
+        orderButton.style.opacity = '1';
+        orderButton.style.cursor = 'pointer';
+        orderButton.innerHTML = `ORDINA`;
+    });
+});
+        // Gestione click su Ordina
+        orderButton.addEventListener('click', function() {
+            if (AppState.strainSelezionata && selectedQuantity) {
+                const prezzo = prezzi[selectedQuantity] || 0;
+                const prodottoCompleto = `${nomeProdotto} (${AppState.strainSelezionata}) - ${selectedQuantity}`;
+                ordinaProdotto(prodottoCompleto, prezzo);
+                chiudiModali();
+            }
+        });
     } catch (e) {
         Utils.handleError(e, 'popolamento finestra dettaglio');
+    }
+}
+
+// ==================== 🌱 AGGIUNGI PRODOTTO AL CARRELLO ====================
+function ordinaProdotto(nomeProdotto, prezzo) {
+    try {
+        // Logica per aggiungere il prodotto al carrello
+        if (tg.addToCart) {
+            tg.addToCart(nomeProdotto, prezzo);
+            mostraNotifica(`Aggiunto al carrello: ${nomeProdotto}`);
+        } else {
+            console.warn('Funzione di aggiunta al carrello non disponibile');
+        }
+    } catch (e) {
+        Utils.handleError(e, 'aggiunta prodotto al carrello');
+    }
+}
+
+// ==================== 📢 MOSTRA NOTIFICA ====================
+function mostraNotifica(messaggio) {
+    try {
+        const notifica = document.createElement('div');
+        notifica.innerText = messaggio;
+        notifica.style.cssText = `
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(0, 123, 255, 0.9); color: white;
+            padding: 10px 20px; border-radius: 5px;
+            font-size: 14px; z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: slideIn 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+        `;
+        
+        document.body.appendChild(notifica);
+        
+        // Rimuovi notifica dopo 3 secondi
+        setTimeout(() => {
+            notifica.style.animation = 'fadeOut 0.5s ease';
+            setTimeout(() => notifica.remove(), 500);
+        }, 3000);
+    } catch (e) {
+        Utils.handleError(e, 'mostra notifica');
     }
 }
 
