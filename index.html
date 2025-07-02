@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Il Mio Negozio</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -20,134 +20,136 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 10px;
+            padding: 8px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 35px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .header h1 {
             color: white;
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 20px;
+            margin-bottom: 6px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 14px;
+            font-size: 11px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .categories {
             display: grid;
-            gap: 20px;
+            gap: 12px;
         }
 
         .category {
             background: linear-gradient(100deg, #4e8dec 0%, #eb29c4 70%);
-            border-radius: 40px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 25px;
+            padding: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
             border: 1px solid rgb(255, 255, 255);
             backdrop-filter: blur(10px);
         }
+        
 
         .framed-title {
-            border: 4px double white;
-            padding: 15px 25px;
-            border-radius: 35px;
+            border: 3px double white;
+            padding: 8px 14px;
+            border-radius: 20px;
             display: inline-block;
             background: linear-gradient(135deg, rgba(78,141,236,0.8), rgba(78,141,236,0.8));
-            box-shadow: 2px 5px 20px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.3);
-            margin-bottom: 10px;
+            box-shadow: 2px 3px 12px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.3);
+            margin-bottom: 6px;
+            font-size: 16px;
         }
 
         .category h2 {
             color: white;
-            font-size: 40px;
-            margin-bottom: 15px;
+            font-size: 24px;
+            margin-bottom: 10px;
             text-align: center;
-            padding-bottom: 10px;
-            text-shadow: 4px 2px 3px rgba(0, 0, 0, 0.9);
+            padding-bottom: 8px;
+            text-shadow: 3px 2px 3px rgba(0, 0, 0, 0.9);
         }
 
         .category h2::after {
             content: '';
             display: block;
-            width: 500px;
-            height: 15px;
+            width: 90%;
+            height: 8px;
             background: linear-gradient(100deg,#eb29c4 0%, #4e8dec 100%);
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2),
-                        inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2);
-            border: 1.5px solid rgb(0, 0, 0);
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2),
+                        inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -1px 2px rgba(0,0,0,0.2);
+            border: 1px solid rgb(0, 0, 0);
             backdrop-filter: blur(10px);
-            margin: 10px auto 0;
+            margin: 8px auto 0;
         }
 
         .products {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 10px;
         }
 
         .product {
             background: linear-gradient(150deg, #dce3ee 10%, #d4b2ce 60%);
-            border-radius: 35px;
-            padding: 10px;
-            border: 3px solid #ffffff;
+            border-radius: 20px;
+            padding: 8px;
+            border: 2px solid #ffffff;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
         }
 
         .product:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
         .product.expanded {
             grid-column: 1 / -1;
             z-index: 10;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3) !important;
         }
 
         .product-name {
             font-weight: bold;
             color: hsl(0, 0%, 0%);
-            margin-bottom: 5px;
-            margin-left: 50px;
+            margin-bottom: 3px;
+            margin-left: 0;
             text-align: center;
             background-color: #ffffff;
-            font-size: 20px;
-            text-shadow: 2px 3px 10px rgba(0,0,0,0.4);
+            font-size: 14px;
+            text-shadow: 1px 2px 6px rgba(0,0,0,0.4);
         }
 
         .product-frame-5 {
-            border: 3px solid #000000;
-            padding: 7px 22px;
-            border-radius: 35px;
+            border: 2px solid #000000;
+            padding: 4px 12px;
+            border-radius: 20px;
             display: inline-block;
             background: #eb29c4;
-            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
+            box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.6);
         }
 
         .product-description {
-            padding-top: 10px;
+            padding-top: 6px;
             color: #000000;
-            font-size: 13px;
-            margin-bottom: 9px;
-            line-height: 1.7;
+            font-size: 10px;
+            margin-bottom: 6px;
+            line-height: 1.5;
             font-weight: bold;
         }
 
@@ -155,19 +157,19 @@
             display: inline-block;
             background: linear-gradient(135deg, #e3d10e, #dd1515);
             color: rgb(0, 0, 0);
-            border-radius: 15px;
-            padding: 6px 15px;
-            font-size: 10px;
+            border-radius: 10px;
+            padding: 4px 10px;
+            font-size: 8px;
             font-weight: 700;
             text-transform: none;
             text-decoration: underline;
             text-decoration-color: #000000;
-            text-decoration-thickness: 1.5px;
-            text-underline-offset: 3px;
-            letter-spacing: 0.5px;
-            margin-top: 20px;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 2px;
+            letter-spacing: 0.3px;
+            margin-top: 10px;
             margin-bottom: 1px;
-            box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.6);
+            box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.6);
         }
 
         /* Animazioni */
@@ -197,11 +199,12 @@
             100% { transform: scale(1); }
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .container { padding: 15px; }
-            .header h1 { font-size: 24px; }
-            .category h2::after { width: 90%; }
+        /* Modal e dettagli prodotto responsive */
+        @media (max-width: 500px) {
+            .product.expanded {
+                min-height: 250px !important;
+                padding: 12px !important;
+            }
         }
     </style>
 </head>
@@ -245,10 +248,61 @@
                         </div>
                         <div class="frozen-badge">◉ Premium Quality</div>
                     </div>
+                   
+                    <div class="product" data-category="special">
+                        <div class="product-name product-frame-5">Special ✨</div>
+                        <div class="product-description">
+                            • 🌈<br>
+                            • 💖<br>
+                            • 🍭
+
+                        </div>
+                        <div class="frozen-badge">◉ Premium Selection</div>    
+                    </div>
+
+
+
                 </div>
             </div>
         </div>
     </div>
+
+    
+            <div class="container">
+            <div class="categories">
+            <div class="category">
+                <h2><span class="framed-title">PROMO</span></h2>
+                <div class="products">
+                <div class="product" data-category="promo">
+                        <div class="product-name product-frame-5">Promo ✨</div>
+                        <div class="product-description">
+                            • 🌈<br>
+                            • 💖<br>
+                            • 🍭
+
+                        </div>
+                        <div class="frozen-badge">◉ Premium Selection</div>    
+                    </div>
+
+                    <div class="product" data-category="bundle">
+                        <div class="product-name product-frame-5">bundle ✨</div>
+                        <div class="product-description">
+                            • 🌈<br>
+                            • 💖<br>
+                            • 🍭
+
+                        </div>
+                        <div class="frozen-badge">◉ Premium Selection</div>    
+                    </div>
+
+                </div>
+            </div>
+      
+         </div>
+         </div>
+        
+
+
 
     <script>
     // ==================== CONFIG ====================
@@ -294,7 +348,7 @@
         ],
         'salad': [
             { 
-                nome: 'Amnesia Haze', 
+                nome: 'promo1', 
                 descrizione: 'Sativa Power',
                 strains: ['Sativa Power', 'Hybrid Energetic'],
                 prezzi: { '2g': 18, '5g': 40, '10g': 75 },
@@ -314,7 +368,40 @@
                 prezzi: { '2g': 26, '5g': 58, '10g': 105 },
                 media: { type: 'image', url: 'https://via.placeholder.com/400x250/3742fa/white?text=Jack+Herer' }
             }
-        ]
+        ],
+
+        //Special Category
+        'special': [
+            { 
+                nome: 'Super Lemon Haze', 
+                descrizione: 'Citrus Delight',
+                strains: ['Sativa Citrus', 'Hybrid Sweet'],
+                prezzi: { '2g': 28, '5g': 60, '10g': 110 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/ff9f43/white?text=Super+Lemon+Haze' }
+            }
+            
+          ],
+          'promo': [
+            { 
+                nome: 'Super Lemon Haze', 
+                descrizione: 'Citrus Delight',
+                strains: ['Sativa Citrus', 'Hybrid Sweet'],
+                prezzi: { '2g': 28, '5g': 60, '10g': 110 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/ff9f43/white?text=Super+Lemon+Haze' }
+            }
+            
+          ],
+          
+          'bundle': [
+            { 
+                nome: 'haze + cake', 
+                descrizione: 'Citrus Delight',
+                strains: ['Sativa Citrus', 'Hybrid Sweet'],
+                prezzi: { '2g': 28, '5g': 60, '10g': 110 },
+                media: { type: 'image', url: 'https://via.placeholder.com/400x250/ff9f43/white?text=Super+Lemon+Haze' }
+            }
+            
+          ]          
     };
 
     // ==================== STATE ====================
@@ -571,8 +658,8 @@
             productElement.classList.add('expanded');
             productElement.style.gridColumn = '1 / -1';
             productElement.style.transition = 'all 0.5s ease';
-            productElement.style.minHeight = '400px';
-            productElement.style.padding = '20px';
+            productElement.style.minHeight = '250px';
+            productElement.style.padding = '12px';
             
             AppState.categoriaEspansa = categoria;
             
@@ -600,10 +687,10 @@
         const container = document.createElement('div');
         container.className = 'real-products-injected';
         container.style.cssText = `
-            margin-top: 20px;
+            margin-top: 12px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
             animation: fadeIn 0.5s ease;
         `;
         return container;
@@ -613,10 +700,10 @@
         const closeBtn = document.createElement('button');
         closeBtn.innerHTML = '×';
         closeBtn.style.cssText = `
-            position: absolute; top: 10px; right: 10px;
+            position: absolute; top: 8px; right: 8px;
             background: rgba(255, 255, 255, 0.9); border: 2px solid #764ba2;
-            width: 35px; height: 35px; border-radius: 50%;
-            font-size: 24px; cursor: pointer; z-index: 10;
+            width: 25px; height: 25px; border-radius: 50%;
+            font-size: 18px; cursor: pointer; z-index: 10;
             color: #764ba2; font-weight: bold; transition: all 0.3s ease;
         `;
         
@@ -628,31 +715,14 @@
         return closeBtn;
     }
 
-    function generaCardProdotti(container, categoria) {
-        try {
-            const prodotti = catalogoProdotti[categoria] || [];
-            
-            prodotti.forEach(prodotto => {
-                if (Utils.validateProduct(prodotto)) {
-                    const card = creaCardProdotto(prodotto);
-                    container.appendChild(card);
-                } else {
-                    console.warn('Prodotto non valido saltato:', prodotto);
-                }
-            });
-        } catch (e) {
-            Utils.handleError(e, 'generazione card prodotti');
-        }
-    }
-
-    function creaCardProdotto(prodotto) {
+    function creaCardProdotto(prodotto, categoria = null) {
         const card = document.createElement('div');
         card.style.cssText = `
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin-top: 10px; border-radius: 20px; padding: 15px;
+            margin-top: 6px; border-radius: 15px; padding: 10px;
             color: white; text-align: center; cursor: pointer;
             transition: all 0.3s ease; border: 2px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2); position: relative;
             overflow: hidden;
         `;
         
@@ -663,10 +733,10 @@
             left: 0;
             right: 0;
             background: rgba(0,0,0,0.3);
-            padding: 3px 0;
-            font-size: 11px;
+            padding: 2px 0;
+            font-size: 9px;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         `;
         strainBanner.textContent = 'Premium';
@@ -675,35 +745,35 @@
         const descrizioneSecure = Utils.sanitizeHTML(prodotto.descrizione);
         
         card.innerHTML = `
-            <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px; margin-top: 15px;">${nomeSecure}</div>
-            <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">${descrizioneSecure}</div>
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 6px; margin-top: 10px;">${nomeSecure}</div>
+            <div style="font-size: 10px; margin-bottom: 8px; opacity: 0.9;">${descrizioneSecure}</div>
             
-            <div style="display: flex; justify-content: space-between; gap: 8px; margin-left: 10px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; gap: 5px; margin-bottom: 10px;">
                 <div class="style" data-quantity="2g">
-                    <div>2g</div>
-                    <div style="font-weight: bold;padding: 8px 0; margin-left: -10px;">€${Utils.formatPrice(prodotto.prezzi['2g'])}</div>
+                    <div style="font-size: 10px;">2g</div>
+                    <div style="font-weight: bold; font-size: 11px;">€${Utils.formatPrice(prodotto.prezzi['2g'])}</div>
                 </div>
                 
                 <div class="style" data-quantity="5g">
-                    <div>5g</div>
-                    <div style="font-weight: bold;padding: 8px 0;">€${Utils.formatPrice(prodotto.prezzi['5g'])}</div>
+                    <div style="font-size: 10px;">5g</div>
+                    <div style="font-weight: bold; font-size: 11px;">€${Utils.formatPrice(prodotto.prezzi['5g'])}</div>
                 </div>
                 
                 <div class="style" data-quantity="10g">
-                    <div>10g</div>
-                    <div style="font-weight: bold; padding: 8px 0;">€${Utils.formatPrice(prodotto.prezzi['10g'])}</div>
+                    <div style="font-size: 10px;">10g</div>
+                    <div style="font-weight: bold; font-size: 11px;">€${Utils.formatPrice(prodotto.prezzi['10g'])}</div>
                 </div>
             </div>
             
-            <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 15px; 
-                        font-size: 12px; font-weight: bold; border: 1px solid rgba(255,255,255,0.3);">
+            <div style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 10px; 
+                        font-size: 9px; font-weight: bold; border: 1px solid rgba(255,255,255,0.3);">
                 👆 Click per Dettagli
             </div>
         `;
         
         card.prepend(strainBanner);
         
-        setupEventiCardSemplificata(card, prodotto);
+        setupEventiCardSemplificata(card, prodotto, categoria);
         
         const priceBtns = card.querySelectorAll('.price-btn');
         priceBtns.forEach(btn => {
@@ -723,10 +793,27 @@
         return card;
     }
 
-    function setupEventiCardSemplificata(card, prodotto) {
+    function generaCardProdotti(container, categoria) {
+        try {
+            const prodotti = catalogoProdotti[categoria] || [];
+            
+            prodotti.forEach(prodotto => {
+                if (Utils.validateProduct(prodotto)) {
+                    const card = creaCardProdotto(prodotto, categoria);
+                    container.appendChild(card);
+                } else {
+                    console.warn('Prodotto non valido saltato:', prodotto);
+                }
+            });
+        } catch (e) {
+            Utils.handleError(e, 'generazione card prodotti');
+        }
+    }
+
+    function setupEventiCardSemplificata(card, prodotto, categoria = null) {
         try {
             const debouncedClick = Utils.debounce(() => {
-                creaFinestraDettaglio(prodotto.nome, prodotto.prezzi, prodotto.descrizione, prodotto.strains, prodotto.media);
+                creaFinestraDettaglio(prodotto.nome, prodotto.prezzi, prodotto.descrizione, prodotto.strains, prodotto.media, categoria);
             }, 300);
             
             card.addEventListener('click', debouncedClick);
@@ -744,7 +831,7 @@
         }
     }
 
-    function creaFinestraDettaglio(nomeProdotto, prezzi, descrizione, strains, media) {
+    function creaFinestraDettaglio(nomeProdotto, prezzi, descrizione, strains, media, categoria = null) {
         try {
             AppState.strainSelezionata = null;
             
@@ -756,7 +843,8 @@
             const overlay = creaOverlayDettaglio();
             const finestra = creaFinestraModal();
             
-            popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains);
+            // Passa la categoria anche qui
+            popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains, categoria);
             
             if (media && media.url) {
                 setTimeout(() => mostraMediaProdotto(nomeProdotto.replace(/\s+/g, ''), media), 100);
@@ -783,6 +871,7 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.8); display: flex;
             justify-content: center; align-items: center; z-index: 2000;
+            padding: 20px;
         `;
         return overlay;
     }
@@ -790,23 +879,23 @@
     function creaFinestraModal() {
         const finestra = document.createElement('div');
         finestra.style.cssText = `
-            width: 450px; height: 600px; background: white;
-            border-radius: 40px; border: 3px solid #ffff;
+            width: 100%; max-width: 340px; height: 450px; background: white;
+            border-radius: 25px; border: 2px solid #ffff;
             position: relative; overflow-y: auto; overflow-x: hidden;
             scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
         `;
         return finestra;
     }
 
-    function generaTabellaPrecci(prezzi) {
+    function generaTabellaPrecci(prezzi, categoria = null) {
         try {
             const prezzoBase = prezzi['2g'] / 2;
             const quantita = ['2g', '5g', '10g'];
             const grammi = [2, 5, 10];
             const sconti = [0, 22, 17];
             
-            let tabella = '<div style="display: flex; gap: 8px; justify-content: space-between;">';
+            let tabella = '<div style="display: flex; gap: 6px; justify-content: space-between;">';
             
             quantita.forEach((q, index) => {
                 const grammo = grammi[index];
@@ -817,17 +906,18 @@
                 
                 tabella += `
                     <div class="price-btn" data-quantity="${q}" data-sconto="${sconto}" 
-                         style="flex: 1; text-align: center; padding: 1px 5px; 
-                                border-radius: 15px; cursor: pointer; transition: all 0.2s ease;
+                         style="flex: 1; text-align: center; padding: 6px 3px; 
+                                border-radius: 12px; cursor: pointer; transition: all 0.2s ease;
                                 border: 2px solid ${colorPrezzo}; background: white;
-                                font-size: 20px; min-height: 50px; display: flex;
+                                font-size: 14px; font-weight: bold; min-height: 40px; display: flex;
                                 flex-direction: column; justify-content: center;">
                         
-                        <div class="quantita-label" style="font-weight: bold; font-size: 15px;">${q}</div>
+                        
+                        <div class="quantita-label">${categoria === 'bundle' ? 'Opt: ' + (index + 1) : q}</div>
                         
                         <div class="prezzo-valore" style="color: ${colorPrezzo}; font-weight: bold;">
                             €${Utils.formatPrice(prezzoFinale)}
-                            ${sconto > 0 ? `<br><small class="percentuale-sconto">(-${sconto}%)</small>` : ''}
+                            ${sconto > 0 ? `<br><small class="percentuale-sconto" style="font-size: 10px;">(-${sconto}%)</small>` : ''}
                         </div>
                     </div>
                 `;
@@ -840,7 +930,7 @@
         }
     }
 
-    function popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains) {
+    function popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains, categoria = null) {
         try {
             const nomeSecure = Utils.sanitizeHTML(nomeProdotto);
             const descrizioneSecure = Utils.sanitizeHTML(descrizione);
@@ -848,52 +938,52 @@
             const dropdownOptions = strains.map(strain => {
                 const strainSecure = Utils.sanitizeHTML(strain);
                 return `<div onclick="selectStrain('${strainSecure}', '${nomeSecure}')" 
-                              style="padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee;
-                                     transition: background 0.2s ease; font-weight: 500;"
-                              onmouseover="this.style.background='#f0f7ff'"
-                              onmouseout="this.style.background='white'">
-                            ${strainSecure}
-                         </div>`;
+                          style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;
+                                 transition: background 0.2s ease; font-weight: 500; font-size: 12px;"
+                          onmouseover="this.style.background='#f0f7ff'"
+                          onmouseout="this.style.background='white'">
+                        ${strainSecure}
+                     </div>`;
             }).join('');
             
             finestra.innerHTML = `
-                <div style="background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%); margin-bottom: -30px; 
-                            height: 300px; display: flex; align-items: center; justify-content: center;">
-                    <div style="background: white; width: 400px; height: 250px; border-radius: 20px;
+                <div style="background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%); margin-bottom: -20px; 
+                            height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; width: 280px; height: 150px; border-radius: 15px;
                                 position: relative; overflow: hidden;">
                         <div id="mediaPreview-${nomeProdotto.replace(/\s+/g, '')}" style="width: 100%; height: 100%; display: flex; 
                                                               align-items: center; justify-content: center; position: relative;">
-                            <div style="font-size: 18px; color: #666;">📷 Immagine Prodotto</div>
+                            <div style="font-size: 14px; color: #666;">📷 Immagine Prodotto</div>
                         </div>
                     </div>
                 </div>
-                <div style="padding: 30px;">
-                    <div style="position: relative; display: inline-block; margin-bottom: 10px;">
+                <div style="padding: 20px;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 8px;">
                         <div id="strainButton" onclick="toggleStrainDropdown()" 
-                             style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-left: 200px; margin-top: 10px;
-                                    padding: 7px 10px; border-radius: 15px; cursor: pointer;
-                                   font-size: 15px; font-weight: bold; display: flex; align-items: center;
-                                    gap: 8px; min-width: 200px; justify-content: space-between;">
+                             style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; margin-left: 150px; margin-top: 8px;
+                                    padding: 6px 12px; border-radius: 12px; cursor: pointer;
+                                   font-size: 12px; font-weight: bold; display: flex; align-items: center;
+                                    gap: 6px; min-width: 150px; justify-content: space-between;">
                             <span>🧬 Scegli Strain</span>
-                            <span id="dropdownArrow">▼</span>
+                            <span id="dropdownArrow" style="font-size: 10px;">▼</span>
                         </div>
-                    <h2 style="margin-top: -35px; font-size: 25px;">${nomeSecure}</h2>
+                    <h2 style="margin-top: -25px; font-size: 18px;">${nomeSecure}</h2>
                     
-                        <div id="strainDropdown" style="display: none; position: absolute; top: 100%; left: 0;
-                                                       background: white; border: 2px solid #667eea; border-radius: 15px;
-                                                       box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 100; 
-                                                       min-width: 250px; margin-top: 5px; overflow: hidden;">
+                        <div id="strainDropdown" style="display: none; position: absolute; top: 100%; left: 100px;
+                                                       background: white; border: 2px solid #667eea; border-radius: 12px;
+                                                       box-shadow: 0 6px 20px rgba(0,0,0,0.15); z-index: 100; 
+                                                       min-width: 180px; margin-top: 3px; overflow: hidden;">
                             ${dropdownOptions}
                         </div>
                     </div>
                     
-                    <p style="color: #000; margin: 20px 0 30px 0; font-weight: bold; line-height: 1.5;">${descrizioneSecure}</p>
+                    <p style="color: #000; margin: 15px 0 20px 0; font-weight: bold; line-height: 1.4; font-size: 12px;">${descrizioneSecure}</p>
                     
-                    <div style="background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-                        ${generaTabellaPrecci(prezzi)}
+                    <div style="background: #f8f9fa; padding: 8px; border-radius: 8px; margin-bottom: 12px;">
+                        ${generaTabellaPrecci(prezzi, categoria)}
                     </div>
                     
-                    <button id="orderButton" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px; width: 100%; border-radius: 30px; font-size: 20px; font-weight: bold; opacity: 0.5; cursor: not-allowed; transition: all 0.3s ease;">
+                    <button id="orderButton" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px; width: 100%; border-radius: 20px; font-size: 14px; font-weight: bold; opacity: 0.5; cursor: not-allowed; transition: all 0.3s ease;">
                         Seleziona Strain per Continuare
                     </button>
                 </div>
@@ -1015,7 +1105,7 @@
             if (strainButton) {
                 strainButton.innerHTML = `
                     <span>🧬 ${Utils.sanitizeHTML(strain)}</span>
-                    <span id="dropdownArrow" style="transform: rotate(0deg); transition: transform 0.2s ease;">▼</span>
+                    <span id="dropdownArrow" style="transform: rotate(0deg); transition: transform 0.2s ease; font-size: 10px;">▼</span>
                 `;
                 strainButton.onclick = () => toggleStrainDropdown();
             }
@@ -1052,12 +1142,12 @@
             if (media.type === 'image') {
                 const img = document.createElement('img');
                 img.src = media.url;
-                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 20px;';
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 15px;';
                 
                 img.onload = () => console.log('Immagine caricata:', media.url);
                 img.onerror = () => {
                     console.log('Errore caricamento:', media.url);
-                    preview.innerHTML = '<div style="font-size: 18px; color: #666;">📷 Immagine Non Disponibile</div>';
+                    preview.innerHTML = '<div style="font-size: 14px; color: #666;">📷 Immagine Non Disponibile</div>';
                 };
                 
                 preview.appendChild(img);
@@ -1066,16 +1156,16 @@
                 const video = document.createElement('video');
                 video.src = media.url;
                 video.controls = true;
-                video.style.cssText = 'width: 100%; height: 100%; border-radius: 20px; object-fit: cover;';
+                video.style.cssText = 'width: 100%; height: 100%; border-radius: 15px; object-fit: cover;';
                 
                 video.onerror = () => {
-                    preview.innerHTML = '<div style="font-size: 18px; color: #666;">🎥 Video Non Disponibile</div>';
+                    preview.innerHTML = '<div style="font-size: 14px; color: #666;">🎥 Video Non Disponibile</div>';
                 };
                 
                 preview.appendChild(video);
                 
             } else {
-                preview.innerHTML = '<div style="font-size: 18px; color: #666;">📷 Formato Non Supportato</div>';
+                preview.innerHTML = '<div style="font-size: 14px; color: #666;">📷 Formato Non Supportato</div>';
             }
         } catch (e) {
             Utils.handleError(e, 'mostra media prodotto');
@@ -1111,19 +1201,19 @@
         try {
             const notifica = document.createElement('div');
             notifica.style.cssText = `
-                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
                 background: linear-gradient(135deg, #48bb78 0%, #46d1a1 100%);
-                color: white; padding: 15px 25px; border-radius: 25px;
+                color: white; padding: 10px 20px; border-radius: 20px;
                 font-weight: bold; z-index: 3000;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3); 
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
                 display: flex; flex-direction: column; align-items: center;
-                animation: slideIn 0.3s ease;
+                animation: slideIn 0.3s ease; font-size: 12px;
             `;
             
             notifica.innerHTML = `
-                <div style="margin-bottom: 10px;">✅ Aggiunto al carrello!</div>
-                <div style="font-size: 18px;">${Utils.sanitizeHTML(nomeProdotto)}</div>
-                <div style="font-size: 20px; margin-top: 5px;">€${Utils.formatPrice(prezzo)}</div>
+                <div style="margin-bottom: 6px;">✅ Aggiunto al carrello!</div>
+                <div style="font-size: 14px;">${Utils.sanitizeHTML(nomeProdotto)}</div>
+                <div style="font-size: 16px; margin-top: 3px;">€${Utils.formatPrice(prezzo)}</div>
             `;
             
             document.body.appendChild(notifica);
@@ -1190,3 +1280,5 @@
     <script src="cart.js"></script>
 </body>
 </html>
+
+<!--lavorare su promo e bundle-->

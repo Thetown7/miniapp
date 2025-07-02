@@ -15,31 +15,31 @@
             /* Contenitore Carrello Principale */
             #cartContainer {
                 position: fixed;
-                bottom: 30px;
-                right: 30px;
+                bottom: 20px;
+                right: 20px;
                 z-index: 1000;
                 display: flex;
                 flex-direction: column;
                 align-items: flex-end;
-                gap: 15px;
+                gap: 10px;
             }
 
             /* Carrello Espanso */
             #expandedCart {
                 background: white;
-                border-radius: 25px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                border-radius: 20px;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.3);
                 overflow: hidden;
                 max-height: 0;
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(15px);
                 transition: all 0.4s ease;
-                width: 350px;
-                border: 3px solid #764ba2;
+                width: 280px;
+                border: 2px solid #764ba2;
             }
 
             #expandedCart.active {
-                max-height: 500px;
+                max-height: 400px;
                 opacity: 1;
                 transform: translateY(0);
             }
@@ -47,10 +47,10 @@
             /* Header Carrello Espanso */
             .cart-expanded-header {
                 background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%);
-                padding: 20px;
+                padding: 15px;
                 color: white;
                 font-weight: bold;
-                font-size: 18px;
+                font-size: 14px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -58,14 +58,14 @@
 
             /* Lista Prodotti */
             .cart-items-container {
-                max-height: 300px;
+                max-height: 220px;
                 overflow-y: auto;
-                padding: 15px;
+                padding: 12px;
                 background: #f8f9fa;
             }
 
             .cart-items-container::-webkit-scrollbar {
-                width: 6px;
+                width: 4px;
             }
 
             .cart-items-container::-webkit-scrollbar-track {
@@ -74,32 +74,32 @@
 
             .cart-items-container::-webkit-scrollbar-thumb {
                 background: #764ba2;
-                border-radius: 3px;
+                border-radius: 2px;
             }
 
             /* Item Carrello */
             .cart-item-expanded {
                 background: white;
-                border-radius: 15px;
-                padding: 12px;
-                margin-bottom: 10px;
+                border-radius: 12px;
+                padding: 10px;
+                margin-bottom: 8px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
                 transition: all 0.3s ease;
                 animation: slideInCart 0.3s ease;
             }
 
             .cart-item-expanded:hover {
-                transform: translateX(-5px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                transform: translateX(-3px);
+                box-shadow: 0 3px 10px rgba(0,0,0,0.15);
             }
 
             /* Footer Carrello */
             .cart-footer-expanded {
                 background: white;
-                padding: 20px;
+                padding: 15px;
                 border-top: 2px solid #f0f0f0;
             }
 
@@ -107,61 +107,63 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 15px;
-                font-size: 20px;
+                margin-bottom: 12px;
+                font-size: 16px;
                 font-weight: bold;
             }
 
             .cart-total-amount {
                 color: #48bb78;
-                font-size: 24px;
+                font-size: 18px;
             }
 
             /* Bottoni Footer */
             .cart-actions {
                 display: flex;
-                gap: 10px;
+                gap: 8px;
             }
 
             .clear-cart-btn {
                 background: #ff4757;
                 color: white;
                 border: none;
-                padding: 12px 20px;
-                border-radius: 20px;
+                padding: 10px 16px;
+                border-radius: 15px;
                 font-weight: bold;
                 cursor: pointer;
                 transition: all 0.3s ease;
+                font-size: 12px;
             }
 
             .clear-cart-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+                box-shadow: 0 3px 10px rgba(255, 71, 87, 0.4);
             }
 
             .checkout-btn-expanded {
                 background: linear-gradient(135deg, #48bb78 0%, #46d1a1 100%);
                 color: white;
                 border: none;
-                padding: 12px 20px;
-                border-radius: 20px;
+                padding: 10px 16px;
+                border-radius: 15px;
                 font-weight: bold;
                 cursor: pointer;
                 flex: 1;
                 transition: all 0.3s ease;
-                box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+                box-shadow: 0 3px 10px rgba(72, 187, 120, 0.3);
+                font-size: 12px;
             }
 
             .checkout-btn-expanded:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(72, 187, 120, 0.5);
+                box-shadow: 0 5px 15px rgba(72, 187, 120, 0.5);
             }
 
             /* Bottone Carrello Goccia */
             #floatingCartButton {
                 position: relative;
-                width: 70px;
-                height: 70px;
+                width: 55px;
+                height: 55px;
                 background: linear-gradient(135deg, #764ba2 0%, #ea66d2 100%);
                 border-radius: 50% 50% 50% 0;
                 transform: rotate(-45deg);
@@ -169,14 +171,14 @@
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
                 transition: all 0.3s ease;
-                border: 3px solid white;
+                border: 2px solid white;
             }
 
             #floatingCartButton:hover {
                 transform: rotate(-45deg) scale(1.1);
-                box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             }
 
             #floatingCartButton.bounce {
@@ -195,17 +197,17 @@
             /* Badge Contatore */
             #cartBadge {
                 position: absolute;
-                top: -15px;
-                right: -15px;
+                top: -12px;
+                right: -12px;
                 background: #ff4757;
                 color: white;
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: bold;
                 border: 2px solid white;
                 transform: rotate(45deg);
@@ -223,15 +225,15 @@
             .cart-quick-info {
                 background: rgba(0, 0, 0, 0.9);
                 color: white;
-                padding: 10px 15px;
-                border-radius: 20px;
-                font-size: 14px;
+                padding: 8px 12px;
+                border-radius: 15px;
+                font-size: 11px;
                 font-weight: bold;
                 white-space: nowrap;
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(8px);
                 transition: all 0.3s ease;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
 
             .cart-quick-info.show {
@@ -242,14 +244,23 @@
             /* Carrello Vuoto */
             .empty-cart-message {
                 text-align: center;
-                padding: 40px 20px;
+                padding: 30px 15px;
                 color: #666;
             }
 
             .empty-cart-icon {
-                font-size: 60px;
-                margin-bottom: 15px;
+                font-size: 45px;
+                margin-bottom: 10px;
                 opacity: 0.5;
+            }
+
+            .empty-cart-message h4 {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .empty-cart-message p {
+                font-size: 12px;
             }
 
             /* Animazioni */
@@ -266,7 +277,7 @@
 
             @keyframes bounceCart {
                 0%, 100% { transform: rotate(-45deg) scale(1); }
-                50% { transform: rotate(-45deg) scale(1.2); }
+                50% { transform: rotate(-45deg) scale(1.15); }
             }
 
             /* Remove Item Button */
@@ -274,29 +285,51 @@
                 background: #ff4757;
                 color: white;
                 border: none;
-                width: 30px;
-                height: 30px;
+                width: 24px;
+                height: 24px;
                 border-radius: 50%;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 transition: all 0.3s ease;
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: bold;
             }
 
             .remove-item-btn:hover {
                 transform: scale(1.1);
-                box-shadow: 0 3px 10px rgba(255, 71, 87, 0.4);
+                box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
             }
 
             /* Responsive */
             @media (max-width: 480px) {
                 #expandedCart {
-                    width: calc(100vw - 60px);
-                    right: -15px;
+                    width: calc(100vw - 40px);
+                    right: -10px;
                 }
+                
+                #cartContainer {
+                    right: 15px;
+                    bottom: 15px;
+                }
+            }
+
+            /* Stili per elementi dei prodotti nel carrello */
+            .cart-item-expanded > div:first-child {
+                font-size: 12px;
+            }
+
+            .cart-item-expanded > div:first-child > div:first-child {
+                font-size: 13px;
+            }
+
+            .cart-item-expanded > div:first-child > div:last-child {
+                font-size: 11px;
+            }
+
+            .cart-item-expanded > div:last-child > span {
+                font-size: 14px;
             }
         `;
         document.head.appendChild(style);
@@ -366,7 +399,7 @@
             button.id = 'floatingCartButton';
             button.innerHTML = `
                 <div class="cart-icon-wrapper">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                         <path d="M9 2L6 9H3L3 14C3 15.6569 4.34315 17 6 17H18C19.6569 17 21 15.6569 21 14L21 9H18L15 2H9Z"/>
                         <path d="M9 17V22"/>
                         <path d="M15 17V22"/>
@@ -504,15 +537,15 @@
                 return `
                     <div class="cart-item-expanded">
                         <div style="flex: 1;">
-                            <div style="font-weight: bold; color: #333; margin-bottom: 3px;">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 2px;">
                                 ${this.sanitizeHTML(productName)}
                             </div>
-                            <div style="font-size: 13px; color: #667eea;">
+                            <div style="font-size: 11px; color: #667eea;">
                                 🧬 ${this.sanitizeHTML(details)}
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-weight: bold; color: #48bb78; font-size: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: bold; color: #48bb78; font-size: 14px;">
                                 €${item.prezzo}
                             </span>
                             <button class="remove-item-btn" onclick="cartManager.removeItem(${index})">
@@ -564,17 +597,18 @@
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
-                top: 20px;
+                top: 15px;
                 left: 50%;
                 transform: translateX(-50%);
                 background: ${color};
                 color: white;
-                padding: 15px 25px;
-                border-radius: 25px;
+                padding: 10px 20px;
+                border-radius: 20px;
                 font-weight: bold;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
                 z-index: 3000;
                 animation: slideInCart 0.3s ease;
+                font-size: 12px;
             `;
             notification.textContent = message;
             document.body.appendChild(notification);
