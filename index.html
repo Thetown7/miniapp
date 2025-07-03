@@ -108,9 +108,10 @@
             border-radius: 20px;
             padding: 8px;
             border: 2px solid #ffffff;
-            transition: all 0.3s ease;
+            transition: box-shadow 0.3s, transform 0.3s, opacity 0.3s;
             cursor: pointer;
             position: relative;
+            will-change: transform, box-shadow, opacity;
         }
 
         .product:hover {
@@ -122,6 +123,15 @@
             grid-column: 1 / -1;
             z-index: 10;
             box-shadow: 0 12px 25px rgba(0,0,0,0.3) !important;
+            will-change: transform, box-shadow, opacity;
+        }
+
+        .price-btn {
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+            will-change: background, color, box-shadow, transform;
+        }
+        .price-btn.selected {
+            /* Colori e ombre vengono comunque forzati inline per compatibilità, ma la classe aiuta la transizione */
         }
 
         .product-name {
@@ -719,11 +729,12 @@
         const card = document.createElement('div');
         card.style.cssText = `
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin-top: 6px; border-radius: 15px; padding: 10px;
+            margin-top: 16px; border-radius: 15px; padding: 10px 10px 35px; 
             color: white; text-align: center; cursor: pointer;
-            transition: all 0.3s ease; border: 2px solid white;
+            border: 2px solid white;
             box-shadow: 0 3px 10px rgba(0,0,0,0.2); position: relative;
             overflow: hidden;
+            will-change: transform, box-shadow, opacity;
         `;
         
         const strainBanner = document.createElement('div');
@@ -778,12 +789,13 @@
         const priceBtns = card.querySelectorAll('.price-btn');
         priceBtns.forEach(btn => {
             btn.addEventListener('mouseenter', () => {
+                btn.classList.add('hovered');
                 btn.style.background = 'rgba(255,255,255,0.3)';
                 btn.style.transform = 'translateY(-3px)';
                 btn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
             });
-            
             btn.addEventListener('mouseleave', () => {
+                btn.classList.remove('hovered');
                 btn.style.background = 'rgba(255,255,255,0.15)';
                 btn.style.transform = 'translateY(0)';
                 btn.style.boxShadow = 'none';
@@ -812,12 +824,11 @@
 
     function setupEventiCardSemplificata(card, prodotto, categoria = null) {
         try {
+            // Debounce più rapido per maggiore reattività
             const debouncedClick = Utils.debounce(() => {
                 creaFinestraDettaglio(prodotto.nome, prodotto.prezzi, prodotto.descrizione, prodotto.strains, prodotto.media, categoria);
-            }, 300);
-            
+            }, 120);
             card.addEventListener('click', debouncedClick);
-            
             card.addEventListener('mouseenter', () => {
                 card.style.transform = 'scale(1.05)';
                 card.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
