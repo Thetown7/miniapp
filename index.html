@@ -321,23 +321,57 @@
             { 
                 nome: 'Gelato 41', 
                 descrizione: 'Premium Indoor',
-                strains: ['Indica Dominant', 'Hybrid 50/50', 'Sativa Leaning'],
+                strains: ['Indica', 'Sativa'],
                 prezzi: { '2g': 25, '5g': 55, '10g': 100 },
-                media: { type: 'image', url: 'https://i.ibb.co/bgZND9tz/Screenshot-2023-10-25-alle-22-01-20.png' }
+                mediaPerStrain: {
+                  'Indica': [
+                    { type: 'image', url: 'https://via.placeholder.com/400x250/ffe066/000?text=Giallo1' },
+                    { type: 'video', url: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+                  ],
+                  'Sativa': [
+                    { type: 'image', url: 'https://via.placeholder.com/400x250/70e000/000?text=Verde1' }
+                  ]
+                },
+                descrizioniPerStrain: {
+                  'Indica': 'Gelato 41 Indica: aroma intenso di limone e vaniglia, effetto energizzante.',
+                  'Sativa': 'Gelato 41 Sativa: note erbacee e freschezza, effetto rilassante.'
+                }
             },
             { 
                 nome: 'Zkittlez', 
                 descrizione: 'Sweet & Fruity',
                 strains: ['Indica Pure', 'Hybrid Sweet'],
                 prezzi: { '2g': 22, '5g': 50, '10g': 90 },
-                media: { type: 'image', url: 'https://via.placeholder.com/400x250/764ba2/white?text=Zkittlez' }
+                mediaPerStrain: {
+                  'Indica Pure': [
+                    { type: 'image', url: 'https://via.placeholder.com/400x250/764ba2/white?text=Zkittlez-Indica' }
+                  ],
+                  'Hybrid Sweet': [
+                    { type: 'image', url: 'https://via.placeholder.com/400x250/764ba2/white?text=Zkittlez-Hybrid' }
+                  ]
+                },
+                descrizioniPerStrain: {
+                  'Indica Pure': 'Zkittlez Indica: dolcezza intensa e note fruttate.',
+                  'Hybrid Sweet': 'Zkittlez Hybrid: mix di frutta e caramelle, effetto bilanciato.'
+                }
             },
             { 
                 nome: 'Purple Haze', 
                 descrizione: 'Classic Strain',
                 strains: ['Sativa Classic', 'Hybrid Purple'],
                 prezzi: { '2g': 30, '5g': 65, '10g': 120 },
-                media: { type: 'video', url: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+                mediaPerStrain: {
+                  'Sativa Classic': [
+                    { type: 'image', url: 'https://via.placeholder.com/400x250/3742fa/white?text=PurpleHaze-Sativa' }
+                  ],
+                  'Hybrid Purple': [
+                    { type: 'image', url: 'https://via.placeholder.com/400x250/3742fa/white?text=PurpleHaze-Hybrid' }
+                  ]
+                },
+                descrizioniPerStrain: {
+                  'Sativa Classic': 'Purple Haze Sativa: classico aroma pungente e stimolante.',
+                  'Hybrid Purple': 'Purple Haze Hybrid: profumo floreale e effetto rilassante.'
+                }
             }
         ],
         'frozen2': [
@@ -415,6 +449,7 @@
     };
 
     // ==================== STATE ====================
+    let ProdottoAttivo = null; // nuovo: tiene traccia del prodotto attivo in modale
     const AppState = {
         carrello: [],
         totaleCarrello: 0,
@@ -844,7 +879,13 @@
 
     function creaFinestraDettaglio(nomeProdotto, prezzi, descrizione, strains, media, categoria = null) {
         try {
-            AppState.strainSelezionata = null;
+        AppState.strainSelezionata = null;
+        // Salva il prodotto attivo per uso strain/media
+        ProdottoAttivo = null;
+        // Trova il prodotto attivo dal catalogo
+        if (categoria && catalogoProdotti[categoria]) {
+            ProdottoAttivo = catalogoProdotti[categoria].find(p => p.nome === nomeProdotto);
+        }
             
             if (!nomeProdotto || !prezzi || !strains) {
                 console.warn('Dati prodotto incompleti');
@@ -857,8 +898,16 @@
             // Passa la categoria anche qui
             popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains, categoria);
             
-            if (media && media.url) {
-                setTimeout(() => mostraMediaProdotto(nomeProdotto.replace(/\s+/g, ''), media), 100);
+            // Mostra media default (primo strain o media generica)
+            let mediaToShow = null;
+            if (ProdottoAttivo && ProdottoAttivo.mediaPerStrain) {
+                const primoStrain = strains[0];
+                mediaToShow = ProdottoAttivo.mediaPerStrain[primoStrain];
+            } else if (ProdottoAttivo && ProdottoAttivo.media) {
+                mediaToShow = [ProdottoAttivo.media];
+            }
+            if (mediaToShow) {
+                setTimeout(() => mostraMediaProdottoLista(nomeProdotto.replace(/\s+/g, ''), mediaToShow), 100);
             }
             
             overlay.addEventListener('click', function(e) {
@@ -944,7 +993,15 @@
     function popolaFinestraDettaglio(finestra, nomeProdotto, prezzi, descrizione, strains, categoria = null) {
         try {
             const nomeSecure = Utils.sanitizeHTML(nomeProdotto);
-            const descrizioneSecure = Utils.sanitizeHTML(descrizione);
+            // Usa la descrizione specifica per strain selezionato, se esiste, altrimenti quella generica
+            let descrizioneToShow = descrizione;
+            if (ProdottoAttivo && ProdottoAttivo.descrizioniPerStrain) {
+                const strainAttivo = AppState.strainSelezionata || strains[0];
+                if (ProdottoAttivo.descrizioniPerStrain[strainAttivo]) {
+                    descrizioneToShow = ProdottoAttivo.descrizioniPerStrain[strainAttivo];
+                }
+            }
+            const descrizioneSecure = Utils.sanitizeHTML(descrizioneToShow);
             
             const dropdownOptions = strains.map(strain => {
                 const strainSecure = Utils.sanitizeHTML(strain);
@@ -988,7 +1045,7 @@
                         </div>
                     </div>
                     
-                    <p style="color: #000; margin: 15px 0 20px 0; font-weight: bold; line-height: 1.4; font-size: 12px;">${descrizioneSecure}</p>
+                    <p id="descrizione-prodotto-dettaglio" style="color: #000; margin: 15px 0 20px 0; font-weight: bold; line-height: 1.4; font-size: 12px;">${descrizioneSecure}</p>
                     
                     <div style="background: #f8f9fa; padding: 8px; border-radius: 8px; margin-bottom: 12px;">
                         ${generaTabellaPrecci(prezzi, categoria)}
@@ -1111,7 +1168,17 @@
     window.selectStrain = function(strain, nomeProdotto) {
         try {
             AppState.strainSelezionata = strain;
-            
+            // Aggiorna media in base allo strain selezionato
+            if (ProdottoAttivo && ProdottoAttivo.mediaPerStrain && ProdottoAttivo.mediaPerStrain[strain]) {
+                mostraMediaProdottoLista(nomeProdotto.replace(/\s+/g, ''), ProdottoAttivo.mediaPerStrain[strain]);
+            }
+            // Aggiorna descrizione se presente
+            if (ProdottoAttivo && ProdottoAttivo.descrizioniPerStrain && ProdottoAttivo.descrizioniPerStrain[strain]) {
+                const descrizioneDiv = document.getElementById('descrizione-prodotto-dettaglio');
+                if (descrizioneDiv) {
+                    descrizioneDiv.textContent = ProdottoAttivo.descrizioniPerStrain[strain];
+                }
+            }
             const strainButton = document.getElementById('strainButton');
             if (strainButton) {
                 strainButton.innerHTML = `
@@ -1120,61 +1187,55 @@
                 `;
                 strainButton.onclick = () => toggleStrainDropdown();
             }
-            
             const dropdown = document.getElementById('strainDropdown');
             if (dropdown) {
                 dropdown.style.display = 'none';
             }
-            
             const orderButton = document.getElementById('orderButton');
             if (orderButton) {
                 orderButton.style.opacity = '1';
                 orderButton.style.cursor = 'pointer';
                 orderButton.innerHTML = `SCEGLI QUANTITÀ`;
             }
-            
             console.log(`Strain selezionata: ${strain} per ${nomeProdotto}`);
         } catch (e) {
             Utils.handleError(e, 'selezione strain');
         }
     };
 
-    function mostraMediaProdotto(prodottoNome, media) {
+    // Mostra una lista di media (immagini/video) per uno strain
+    function mostraMediaProdottoLista(prodottoNome, mediaList) {
         try {
             const preview = document.getElementById(`mediaPreview-${prodottoNome}`);
             if (!preview) {
                 console.log('Preview non trovato per:', prodottoNome);
                 return;
             }
-            
-            console.log('Caricando media:', media.url);
             preview.innerHTML = '';
-            
+            if (!mediaList || mediaList.length === 0) {
+                preview.innerHTML = '<div style="font-size: 14px; color: #666;">📷 Nessun Media</div>';
+                return;
+            }
+            // Mostra solo il primo media (puoi espandere a slider se vuoi)
+            const media = mediaList[0];
             if (media.type === 'image') {
                 const img = document.createElement('img');
                 img.src = media.url;
                 img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 15px;';
-                
                 img.onload = () => console.log('Immagine caricata:', media.url);
                 img.onerror = () => {
-                    console.log('Errore caricamento:', media.url);
                     preview.innerHTML = '<div style="font-size: 14px; color: #666;">📷 Immagine Non Disponibile</div>';
                 };
-                
                 preview.appendChild(img);
-                
             } else if (media.type === 'video') {
                 const video = document.createElement('video');
                 video.src = media.url;
                 video.controls = true;
                 video.style.cssText = 'width: 100%; height: 100%; border-radius: 15px; object-fit: cover;';
-                
                 video.onerror = () => {
                     preview.innerHTML = '<div style="font-size: 14px; color: #666;">🎥 Video Non Disponibile</div>';
                 };
-                
                 preview.appendChild(video);
-                
             } else {
                 preview.innerHTML = '<div style="font-size: 14px; color: #666;">📷 Formato Non Supportato</div>';
             }
