@@ -5,8 +5,8 @@ import requests
 import re
 import asyncio
 from datetime import datetime
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
-from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 import logging
 import sys
@@ -402,40 +402,287 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "⏳ Riceverai una notifica a breve."
     )
     
-    # Notifica admin
+    # Notifica admin con sistema organizzato
     if user_id != ADMIN_ID:
-        try:
-            conn = sqlite3.connect(DATABASE)
-            c = conn.cursor()
-            c.execute('SELECT file_path FROM verification_photos WHERE telegram_id = ? ORDER BY photo_number', (user_id,))
-            photos = c.fetchall()
-            conn.close()
+        await notifica_admin_nuova_verifica(context, user_id)
+
+# =====================================================
+# 🔔 SISTEMA NOTIFICHE ADMIN ORGANIZZATO
+# =====================================================
+async def notifica_admin_nuova_verifica(context, user_id):
+    """Invia notifica organizzata all'admin per nuova verifica"""
+    try:
+        # Recupera info utente
+        user_data = get_user_status(user_id)
+        
+        # Costruisci nome utente
+        user_info = f"@{user_data['username']}" if user_data['username'] else f"User {user_id}"
+        if user_data['first_name']:
+            user_info = f"{user_data['first_name']} {user_data.get('last_name', '')}".strip()
+        
+        # Crea bottoni inline
+        keyboard = [
+            [
+                InlineKeyboardButton("👁 Vedi Foto", callback_data=f"view_{user_id}"),
+                InlineKeyboardButton("✅ Approva", callback_data=f"approve_{user_id}"),
+                InlineKeyboardButton("❌ Rifiuta", callback_data=f"reject_{user_id}")
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        # Invia notifica compatta
+        await context.bot.send_message(
+            ADMIN_ID,
+            f"🔔 **NUOVA VERIFICA**\n\n"
+            f"👤 **Utente**: {user_info}\n"
+            f"📱 **Username**: @{user_data['username'] or 'NoUsername'}\n"
+            f"🆔 **ID**: `{user_id}`\n"
+            f"📸 **Foto inviate**: {user_data['photos_count']}\n"
+            f"⏰ **Ricevuta**: Adesso\n",
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
+        )
+        
+    except Exception as e:
+        logger.error(f"Errore notifica admin: {e}")
+
+# =====================================================
+# 🎛️ GESTIONE CALLBACK BOTTONI
+# =====================================================
+async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Gestisce i click sui bottoni inline"""
+    query = update.callback_query
+    await query.answer()
+    
+    # Verifica che sia l'admin
+    if query.from_user.id != ADMIN_ID:
+        await query.answer("❌ Non autorizzato", show_alert=True)
+        return
+    
+    data = query.data
+    
+    # View photos
+    if data.startswith("view_"):
+        user_id = int(data.replace("view_", ""))
+        await mostra_foto_utente(query, context, user_id)
+    
+    # Approve
+    elif data.startswith("approve_"):
+        user_id = int(data.replace("approve_", ""))
+        await approva_da_callback(query, context, user_id)
+    
+    # Reject
+    elif data.startswith("reject_"):
+        user_id = int(data.replace("reject_", ""))
+        await rifiuta_da_callback(query, context, user_id)
+    
+    # Show pending dal pannello
+    elif data == "show_pending":
+        await mostra_pending_callback(query, context)
+    
+    # Show all dal pannello
+    elif data == "show_all":
+        await mostra_all_callback(query, context)
+    
+    # Show help dal pannello
+    elif data == "show_help":
+        await mostra_help_callback(query, context)
+
+async def mostra_pending_callback(query, context):
+    """Mostra verifiche pending da callback"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    try:
+        c.execute('''SELECT telegram_id, username, first_name, last_name, photos_count
+                     FROM users 
+                     WHERE status = 'submitted' 
+                     ORDER BY created_at DESC''')
+        
+        users = c.fetchall()
+        
+        if not users:
+            await query.edit_message_text("✅ Nessuna verifica in attesa!")
+            return
+        
+        # Modifica il messaggio originale
+        await query.edit_message_text(f"🔔 **VERIFICHE IN ATTESA ({len(users)})**", parse_mode='Markdown')
+        
+        # Invia un messaggio per ogni utente con bottoni
+        for user in users:
+            tid, username, first_name, last_name, photos = user
             
-            for i, (photo_path,) in enumerate(photos, 1):
-                if os.path.exists(photo_path):
-                    with open(photo_path, 'rb') as f:
-                        await context.bot.send_photo(
-                            ADMIN_ID, 
-                            f, 
-                            caption=f"📸 Foto {i}/{len(photos)} - User {user_id}"
-                        )
+            # Costruisci nome
+            if first_name:
+                name = f"{first_name} {last_name or ''}".strip()
+            elif username:
+                name = f"@{username}"
+            else:
+                name = f"User {tid}"
             
-            user_info = f"@{user_data['username']}" if user_data['username'] else f"User {user_id}"
-            if user_data['first_name']:
-                user_info = f"{user_data['first_name']} {user_data.get('last_name', '')}".strip()
+            # Crea bottoni
+            keyboard = [
+                [
+                    InlineKeyboardButton("👁 Vedi", callback_data=f"view_{tid}"),
+                    InlineKeyboardButton("✅ Approva", callback_data=f"approve_{tid}"),
+                    InlineKeyboardButton("❌ Rifiuta", callback_data=f"reject_{tid}")
+                ]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
             
             await context.bot.send_message(
-                ADMIN_ID, 
-                f"🔔 NUOVA VERIFICA\n\n"
-                f"Utente: {user_info}\n"
-                f"Username: @{user_data['username'] or 'NoUsername'}\n"
-                f"ID: {user_id}\n\n"
-                f"Azioni:\n"
-                f"• /approve_{user_id}\n"
-                f"• /reject_{user_id}"
+                ADMIN_ID,
+                f"👤 **{name}**\n"
+                f"📱 @{username or 'NoUsername'}\n"
+                f"🆔 `{tid}`\n"
+                f"📸 {photos} foto",
+                reply_markup=reply_markup,
+                parse_mode='Markdown'
+            )
+            
+    except Exception as e:
+        logger.error(f"Errore in mostra_pending_callback: {e}")
+        await query.answer("❌ Errore", show_alert=True)
+    finally:
+        conn.close()
+
+async def mostra_all_callback(query, context):
+    """Mostra tutti gli utenti da callback"""
+    # Usa la funzione list_all esistente ma adattata per callback
+    await query.answer("Caricamento lista...")
+    await query.message.reply_text("Usa /list_all per vedere tutti gli utenti")
+
+async def mostra_help_callback(query, context):
+    """Mostra help da callback"""
+    help_text = (
+        "🤖 **GUIDA ADMIN**\n\n"
+        "**Comandi rapidi:**\n"
+        "• /verifiche - Mostra verifiche organizzate\n"
+        "• /list_pending - Lista testuale pending\n"
+        "• /list_all - Lista tutti gli utenti\n\n"
+        "**Bottoni:**\n"
+        "• 👁 = Visualizza foto\n"
+        "• ✅ = Approva utente\n"
+        "• ❌ = Rifiuta utente\n\n"
+        "**Gestione manuale:**\n"
+        "• /approve_ID - Approva manualmente\n"
+        "• /reject_ID - Rifiuta manualmente"
+    )
+    await query.edit_message_text(help_text, parse_mode='Markdown')
+
+async def mostra_foto_utente(query, context, user_id):
+    """Mostra le foto dell'utente quando richiesto"""
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT file_path FROM verification_photos WHERE telegram_id = ? ORDER BY photo_number', (user_id,))
+        photos = c.fetchall()
+        conn.close()
+        
+        if not photos:
+            await query.answer("❌ Nessuna foto trovata", show_alert=True)
+            return
+        
+        # Invia messaggio informativo
+        await query.message.reply_text(f"📸 Foto dell'utente {user_id}:")
+        
+        # Invia le foto
+        for i, (photo_path,) in enumerate(photos, 1):
+            if os.path.exists(photo_path):
+                with open(photo_path, 'rb') as f:
+                    await context.bot.send_photo(
+                        ADMIN_ID, 
+                        f, 
+                        caption=f"📸 Foto {i}/{len(photos)} - User {user_id}"
+                    )
+        
+        # Aggiungi bottoni di azione dopo le foto
+        keyboard = [
+            [
+                InlineKeyboardButton("✅ Approva", callback_data=f"approve_{user_id}"),
+                InlineKeyboardButton("❌ Rifiuta", callback_data=f"reject_{user_id}")
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await query.message.reply_text(
+            f"Cosa vuoi fare con l'utente {user_id}?",
+            reply_markup=reply_markup
+        )
+        
+    except Exception as e:
+        logger.error(f"Errore mostra foto: {e}")
+        await query.answer("❌ Errore nel mostrare le foto", show_alert=True)
+
+async def approva_da_callback(query, context, user_id):
+    """Approva utente da callback"""
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('''UPDATE users SET is_verified = 1, status = 'verified', 
+                     verification_date = ? WHERE telegram_id = ?''', 
+                  (datetime.now(), user_id))
+        conn.commit()
+        conn.close()
+        
+        # Notifica utente
+        try:
+            await context.bot.send_message(
+                user_id, 
+                "🎉 VERIFICA APPROVATA!\n\n"
+                "✅ Sei stato verificato con successo!\n"
+                "Ora puoi accedere all'app.\n\n"
+                "Benvenuto! 🚀"
             )
         except Exception as e:
-            logger.error(f"Errore notifica admin: {e}")
+            logger.error(f"Errore notifica utente: {e}")
+        
+        # Aggiorna messaggio admin
+        await query.edit_message_text(
+            query.message.text + "\n\n✅ **APPROVATO**",
+            parse_mode='Markdown'
+        )
+        
+        await query.answer("✅ Utente approvato!", show_alert=True)
+        
+    except Exception as e:
+        logger.error(f"Errore approvazione: {e}")
+        await query.answer("❌ Errore nell'approvazione", show_alert=True)
+
+async def rifiuta_da_callback(query, context, user_id):
+    """Rifiuta utente da callback"""
+    try:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('''UPDATE users SET status = 'rejected', photos_count = 0 
+                     WHERE telegram_id = ?''', (user_id,))
+        conn.commit()
+        conn.close()
+        
+        clear_user_photos(user_id)
+        
+        # Notifica utente
+        try:
+            await context.bot.send_message(
+                user_id, 
+                "❌ VERIFICA RIFIUTATA\n\n"
+                "Le foto non sono valide.\n\n"
+                "Puoi riprovare con /verify"
+            )
+        except Exception as e:
+            logger.error(f"Errore notifica utente: {e}")
+        
+        # Aggiorna messaggio admin
+        await query.edit_message_text(
+            query.message.text + "\n\n❌ **RIFIUTATO**",
+            parse_mode='Markdown'
+        )
+        
+        await query.answer("❌ Utente rifiutato!", show_alert=True)
+        
+    except Exception as e:
+        logger.error(f"Errore rifiuto: {e}")
+        await query.answer("❌ Errore nel rifiuto", show_alert=True)
 
 # =====================================================
 # 💬 GESTIONE MESSAGGI
@@ -562,18 +809,108 @@ async def reject(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Errore: /reject_123456789")
 
 # =====================================================
-# 📊 COMANDO /admin_panel
+# 📋 COMANDO /verifiche - MOSTRA TUTTE LE VERIFICHE PENDING
+# =====================================================
+async def verifiche(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Mostra tutte le verifiche pending in modo organizzato"""
+    if update.effective_user.id != ADMIN_ID:
+        return
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    try:
+        c.execute('''SELECT telegram_id, username, first_name, last_name, photos_count, created_at
+                     FROM users 
+                     WHERE status = 'submitted' 
+                     ORDER BY created_at DESC''')
+        
+        users = c.fetchall()
+        
+        if not users:
+            await update.message.reply_text("✅ Nessuna verifica in attesa!")
+            return
+        
+        message = f"🔔 **VERIFICHE IN ATTESA ({len(users)})**\n\n"
+        
+        for idx, user in enumerate(users, 1):
+            tid, username, first_name, last_name, photos, created = user
+            
+            # Costruisci nome
+            if first_name:
+                name = f"{first_name} {last_name or ''}".strip()
+            elif username:
+                name = f"@{username}"
+            else:
+                name = f"User {tid}"
+            
+            # Calcola tempo trascorso
+            if created:
+                try:
+                    created_time = datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
+                    elapsed = datetime.now() - created_time
+                    if elapsed.days > 0:
+                        time_str = f"{elapsed.days}g fa"
+                    elif elapsed.seconds > 3600:
+                        time_str = f"{elapsed.seconds // 3600}h fa"
+                    else:
+                        time_str = f"{elapsed.seconds // 60}min fa"
+                except:
+                    time_str = "N/A"
+            else:
+                time_str = "N/A"
+            
+            message += f"{idx}️⃣ **{name}**\n"
+            message += f"   📸 {photos} foto • ⏰ {time_str}\n\n"
+            
+            # Crea bottoni per ogni utente
+            keyboard = [
+                [
+                    InlineKeyboardButton("👁", callback_data=f"view_{tid}"),
+                    InlineKeyboardButton("✅", callback_data=f"approve_{tid}"),
+                    InlineKeyboardButton("❌", callback_data=f"reject_{tid}")
+                ]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            # Invia messaggio separato per ogni utente con bottoni
+            if idx == 1:
+                await update.message.reply_text(message, parse_mode='Markdown')
+                message = ""
+            
+            await update.message.reply_text(
+                f"**{name}** (`{tid}`)\n"
+                f"📸 {photos} foto • ⏰ {time_str}",
+                reply_markup=reply_markup,
+                parse_mode='Markdown'
+            )
+            
+    except Exception as e:
+        logger.error(f"Errore in verifiche: {e}")
+        await update.message.reply_text("❌ Errore nel recupero delle verifiche")
+    finally:
+        conn.close()
+
+# =====================================================
+# 📊 COMANDO /admin_panel AGGIORNATO
 # =====================================================
 async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         return
     
+    # Crea bottoni inline per il pannello admin
+    keyboard = [
+        [InlineKeyboardButton("🔔 Verifiche Pending", callback_data="show_pending")],
+        [InlineKeyboardButton("📋 Lista Tutti", callback_data="show_all")],
+        [InlineKeyboardButton("❓ Aiuto", callback_data="show_help")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
     await update.message.reply_text(
-        "🛠 PANNELLO ADMIN\n\n"
-        "Gestione verifiche:\n"
-        "• /list_pending - Utenti in attesa\n"
-        "• /list_all - Tutti gli utenti\n"
-        "• /help - Guida comandi"
+        "🛠 **PANNELLO ADMIN**\n\n"
+        "Seleziona un'opzione:",
+        reply_markup=reply_markup,
+        parse_mode='Markdown'
     )
 
 # =====================================================
@@ -723,16 +1060,19 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if user_id == ADMIN_ID:
         help_text = (
-            "🤖 GUIDA ADMIN\n\n"
-            "Comandi disponibili:\n"
-            "• /admin_panel - Mostra pannello admin\n"
-            "• /list_pending - Lista utenti da verificare\n"
-            "• /list_all - Lista tutti gli utenti (max 50)\n"
-            "• /approve_ID - Approva un utente\n"
-            "• /reject_ID - Rifiuta un utente\n\n"
-            "Esempio:\n"
-            "Per approvare l'utente 123456789:\n"
-            "/approve_123456789"
+            "🤖 **GUIDA ADMIN**\n\n"
+            "**Sistema Verifiche Organizzato:**\n"
+            "• /admin_panel - Pannello con bottoni\n"
+            "• /verifiche - Mostra verifiche con bottoni interattivi\n\n"
+            "**Comandi classici:**\n"
+            "• /list_pending - Lista testuale pending\n"
+            "• /list_all - Lista tutti gli utenti\n"
+            "• /approve_ID - Approva manualmente\n"
+            "• /reject_ID - Rifiuta manualmente\n\n"
+            "**Nuovo sistema:**\n"
+            "- Le foto vengono mostrate solo cliccando 👁\n"
+            "- Puoi approvare/rifiutare con un click\n"
+            "- Notifiche più ordinate e compatte"
         )
     else:
         help_text = (
@@ -744,7 +1084,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "⚠️ Importante: Invia solo FOTO durante la verifica!"
         )
     
-    await update.message.reply_text(help_text)
+    await update.message.reply_text(help_text, parse_mode='Markdown' if user_id == ADMIN_ID else None)
 
 # =====================================================
 # 🚀 MAIN - AVVIO BOT
@@ -796,6 +1136,12 @@ def main():
             filters.Regex(r'^/reject_\d+$') & filters.User(user_id=ADMIN_ID), 
             reject
         ))
+        
+        # Handler per callback query (bottoni)
+        application.add_handler(CallbackQueryHandler(handle_callback_query))
+        
+        # Handler per il comando verifiche
+        application.add_handler(CommandHandler("verifiche", verifiche))
         
         # Handler messaggi generici
         application.add_handler(MessageHandler(
