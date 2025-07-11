@@ -1060,16 +1060,16 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if user_id == ADMIN_ID:
         help_text = (
-            "🤖 **GUIDA ADMIN**\n\n"
-            "**Sistema Verifiche Organizzato:**\n"
+            "🤖 GUIDA ADMIN\n\n"
+            "Sistema Verifiche Organizzato:\n"
             "• /admin_panel - Pannello con bottoni\n"
             "• /verifiche - Mostra verifiche con bottoni interattivi\n\n"
-            "**Comandi classici:**\n"
+            "Comandi classici:\n"
             "• /list_pending - Lista testuale pending\n"
             "• /list_all - Lista tutti gli utenti\n"
             "• /approve_ID - Approva manualmente\n"
             "• /reject_ID - Rifiuta manualmente\n\n"
-            "**Nuovo sistema:**\n"
+            "Nuovo sistema:\n"
             "- Le foto vengono mostrate solo cliccando 👁\n"
             "- Puoi approvare/rifiutare con un click\n"
             "- Notifiche più ordinate e compatte"
@@ -1084,7 +1084,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "⚠️ Importante: Invia solo FOTO durante la verifica!"
         )
     
-    await update.message.reply_text(help_text, parse_mode='Markdown' if user_id == ADMIN_ID else None)
+    await update.message.reply_text(help_text)
 
 # =====================================================
 # 🚀 MAIN - AVVIO BOT

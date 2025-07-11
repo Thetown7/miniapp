@@ -561,6 +561,25 @@
         
         inviaData(dati) {
             try {
+                // SUPER DEBUG ESTREMO
+                let debugInfo = [];
+                debugInfo.push(`🚀 inviaData chiamata`);
+                debugInfo.push(`📦 Dati: ${JSON.stringify(dati).substring(0, 100)}...`);
+                debugInfo.push(`🔍 tg esiste: ${!!tg}`);
+                debugInfo.push(`🔍 tg.sendData esiste: ${!!tg.sendData}`);
+                debugInfo.push(`🔍 tg tipo: ${typeof tg}`);
+                
+                if (tg) {
+                    debugInfo.push(`🔍 tg.initDataUnsafe: ${!!tg.initDataUnsafe}`);
+                    debugInfo.push(`🔍 tg.version: ${tg.version || 'N/A'}`);
+                    debugInfo.push(`🔍 tg methods: ${Object.keys(tg).join(', ')}`);
+                }
+                
+                // Mostra tutto in un alert
+                if (tg.showAlert) {
+                    tg.showAlert(debugInfo.join('\n'));
+                }
+                
                 console.log("🚀 TelegramIntegration.inviaData chiamata con:", dati);
                 console.log("🔍 tg object:", tg);
                 console.log("🔍 tg.sendData disponibile:", !!tg.sendData);
@@ -568,17 +587,37 @@
                 if (tg.sendData) {
                     const dataString = JSON.stringify(dati);
                     console.log("📤 Invio dati a Telegram:", dataString);
-                    tg.sendData(dataString);
-                    console.log("✅ tg.sendData eseguita con successo");
-                    return true;
+                    
+                    try {
+                        tg.sendData(dataString);
+                        console.log("✅ tg.sendData eseguita con successo");
+                        
+                        // DEBUG VISIBILE
+                        if (tg.showAlert) {
+                            setTimeout(() => {
+                                tg.showAlert("✅ tg.sendData() ESEGUITA!\nSe il bot non risponde, il problema è nel bot.");
+                            }, 1000);
+                        }
+                        return true;
+                    } catch (sendError) {
+                        console.error("❌ Errore durante tg.sendData:", sendError);
+                        if (tg.showAlert) {
+                            tg.showAlert(`❌ ERRORE in tg.sendData: ${sendError.message}`);
+                        }
+                        return false;
+                    }
                 } else {
                     console.error("❌ tg.sendData non disponibile");
-                    console.log("🔍 Metodi disponibili su tg:", Object.keys(tg));
+                    if (tg.showAlert) {
+                        tg.showAlert("❌ tg.sendData NON DISPONIBILE!\nLa mini-app non è connessa correttamente.");
+                    }
                     return false;
                 }
             } catch (error) {
                 console.error("❌ Errore in inviaData:", error);
-                Utils.handleError(error, 'invio dati a Telegram');
+                if (tg.showAlert) {
+                    tg.showAlert(`❌ ERRORE CRITICO: ${error.message}`);
+                }
                 return false;
             }
         }
@@ -610,6 +649,11 @@
             console.log("🛒 Elaborazione ordine finale...");
             console.log("🛍️ Carrello corrente:", AppState.carrello);
             console.log("💰 Totale carrello:", AppState.totaleCarrello);
+            
+            // DEBUG VISIBILE SU MOBILE
+            if (tg.showAlert) {
+                tg.showAlert(`🛒 Inizio elaborazione ordine. Prodotti: ${AppState.carrello.length}`);
+            }
             
             const datiOrdine = {
                 azione: 'ordine_finale',
@@ -643,6 +687,12 @@
             }
         } catch (e) {
             console.error("❌ Errore in processaOrdineFinale:", e);
+            
+            // DEBUG VISIBILE
+            if (tg.showAlert) {
+                tg.showAlert(`❌ ERRORE CRITICO: ${e.message}`);
+            }
+            
             Utils.handleError(e, 'processo ordine finale');
         }
     }
