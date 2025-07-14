@@ -130,9 +130,6 @@
             transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
             will-change: background, color, box-shadow, transform;
         }
-        .price-btn.selected {
-            /* Colori e ombre vengono comunque forzati inline per compatibilità, ma la classe aiuta la transizione */
-        }
 
         .product-name {
             font-weight: bold;
@@ -223,6 +220,7 @@
         <div class="header">
             <h1>😈 NAME 😈</h1>
             <p>Best Player in The Game</p>
+            <p style="color: yellow; font-size: 10px; margin-top: 5px;">v1.3 - FIXED</p>
         </div>
 
         <div class="categories">
@@ -561,62 +559,29 @@
         
         inviaData(dati) {
             try {
-                // SUPER DEBUG ESTREMO
-                let debugInfo = [];
-                debugInfo.push(`🚀 inviaData chiamata`);
-                debugInfo.push(`📦 Dati: ${JSON.stringify(dati).substring(0, 100)}...`);
-                debugInfo.push(`🔍 tg esiste: ${!!tg}`);
-                debugInfo.push(`🔍 tg.sendData esiste: ${!!tg.sendData}`);
-                debugInfo.push(`🔍 tg tipo: ${typeof tg}`);
+                console.log("🚀 Invio dati a Telegram:", dati);
                 
-                if (tg) {
-                    debugInfo.push(`🔍 tg.initDataUnsafe: ${!!tg.initDataUnsafe}`);
-                    debugInfo.push(`🔍 tg.version: ${tg.version || 'N/A'}`);
-                    debugInfo.push(`🔍 tg methods: ${Object.keys(tg).join(', ')}`);
+                if (!tg) {
+                    throw new Error("Oggetto Telegram non disponibile");
                 }
                 
-                // Mostra tutto in un alert
-                if (tg.showAlert) {
-                    tg.showAlert(debugInfo.join('\n'));
+                if (!tg.sendData) {
+                    throw new Error("tg.sendData non disponibile - WebApp non configurata correttamente");
                 }
                 
-                console.log("🚀 TelegramIntegration.inviaData chiamata con:", dati);
-                console.log("🔍 tg object:", tg);
-                console.log("🔍 tg.sendData disponibile:", !!tg.sendData);
+                const dataString = JSON.stringify(dati);
+                tg.sendData(dataString);
+                console.log("✅ Dati inviati con successo");
+                return true;
                 
-                if (tg.sendData) {
-                    const dataString = JSON.stringify(dati);
-                    console.log("📤 Invio dati a Telegram:", dataString);
-                    
-                    try {
-                        tg.sendData(dataString);
-                        console.log("✅ tg.sendData eseguita con successo");
-                        
-                        // DEBUG VISIBILE
-                        if (tg.showAlert) {
-                            setTimeout(() => {
-                                tg.showAlert("✅ tg.sendData() ESEGUITA!\nSe il bot non risponde, il problema è nel bot.");
-                            }, 1000);
-                        }
-                        return true;
-                    } catch (sendError) {
-                        console.error("❌ Errore durante tg.sendData:", sendError);
-                        if (tg.showAlert) {
-                            tg.showAlert(`❌ ERRORE in tg.sendData: ${sendError.message}`);
-                        }
-                        return false;
-                    }
-                } else {
-                    console.error("❌ tg.sendData non disponibile");
-                    if (tg.showAlert) {
-                        tg.showAlert("❌ tg.sendData NON DISPONIBILE!\nLa mini-app non è connessa correttamente.");
-                    }
-                    return false;
-                }
             } catch (error) {
-                console.error("❌ Errore in inviaData:", error);
-                if (tg.showAlert) {
-                    tg.showAlert(`❌ ERRORE CRITICO: ${error.message}`);
+                console.error("❌ Errore invio dati:", error);
+                
+                // Mostra errore user-friendly
+                if (tg && tg.showAlert) {
+                    tg.showAlert(`Errore: ${error.message}`);
+                } else {
+                    alert(`Errore: ${error.message}`);
                 }
                 return false;
             }
@@ -634,6 +599,8 @@
     }
 
     function inviaStatoATelegram() {
+        // TEMPORANEAMENTE DISABILITATO per evitare chiusura mini-app
+        // Solo il carrello dovrebbe inviare dati finali
         const dati = {
             azione: 'aggiornamento_stato',
             carrello: AppState.carrello,
@@ -641,18 +608,19 @@
             timestamp: Date.now()
         };
         
-        TelegramIntegration.inviaData(dati);
+        // TelegramIntegration.inviaData(dati); // COMMENTATO
+        console.log("📊 Stato carrello aggiornato (non inviato):", dati);
     }
 
     function processaOrdineFinale() {
         try {
             console.log("🛒 Elaborazione ordine finale...");
-            console.log("🛍️ Carrello corrente:", AppState.carrello);
-            console.log("💰 Totale carrello:", AppState.totaleCarrello);
             
-            // DEBUG VISIBILE SU MOBILE
-            if (tg.showAlert) {
-                tg.showAlert(`🛒 Inizio elaborazione ordine. Prodotti: ${AppState.carrello.length}`);
+            if (AppState.carrello.length === 0) {
+                if (tg && tg.showAlert) {
+                    tg.showAlert('Il carrello è vuoto!');
+                }
+                return;
             }
             
             const datiOrdine = {
@@ -663,37 +631,23 @@
                 user_id: tg.initDataUnsafe?.user?.id || 'unknown'
             };
             
-            console.log("📦 Dati ordine da inviare:", datiOrdine);
+            console.log("📦 Invio ordine:", datiOrdine);
             
             const success = TelegramIntegration.inviaData(datiOrdine);
-            console.log("📊 Risultato invio:", success);
             
             if (success) {
-                if (tg.showAlert) {
-                    tg.showAlert('Ordine inviato con successo!');
-                }
                 console.log("🧹 Svuotamento carrello...");
                 AppState.svuotaCarrello();
                 
-                // Aggiorna UI dopo l'ordine
-                setTimeout(() => {
-                    aggiornaBadgeCarrello();
-                }, 500);
-            } else {
-                console.error("❌ Errore invio ordine");
-                if (tg.showAlert) {
-                    tg.showAlert('Errore nell\'invio dell\'ordine');
+                if (tg && tg.showAlert) {
+                    tg.showAlert('✅ Ordine inviato con successo!');
                 }
             }
         } catch (e) {
             console.error("❌ Errore in processaOrdineFinale:", e);
-            
-            // DEBUG VISIBILE
-            if (tg.showAlert) {
-                tg.showAlert(`❌ ERRORE CRITICO: ${e.message}`);
+            if (tg && tg.showAlert) {
+                tg.showAlert(`Errore ordine: ${e.message}`);
             }
-            
-            Utils.handleError(e, 'processo ordine finale');
         }
     }
     
@@ -1204,7 +1158,7 @@
                     selectedQuantity = btn.getAttribute('data-quantity');
                     orderButton.style.opacity = '1';
                     orderButton.style.cursor = 'pointer';
-                    orderButton.innerHTML = `ORDINA`;
+                    orderButton.innerHTML = `AGGIUNGI AL CARRELLO`;
                 });
             });
             
@@ -1272,7 +1226,7 @@
             if (orderButton) {
                 orderButton.style.opacity = '1';
                 orderButton.style.cursor = 'pointer';
-                orderButton.innerHTML = `SCEGLI QUANTITÀ`;
+                orderButton.innerHTML = `AGGIUNGI AL CARRELLO`;
             }
             console.log(`Strain selezionata: ${strain} per ${nomeProdotto}`);
         } catch (e) {
@@ -1330,9 +1284,15 @@
                 timestamp: Date.now()
             };
             
+            // 1. Aggiungi al carrello locale
             AppState.aggiungiAlCarrello(prodotto);
+            
+            // 2. Mostra notifica di successo
             mostraConferma(prodotto.nome, prodotto.prezzo);
             
+            // 3. NON INVIARE PIÙ L'ORDINE DA QUI - L'invio avverrà solo dal carrello
+            // La riga seguente è stata rimossa per correggere il bug.
+            /*
             TelegramIntegration.inviaData({
                 azione: 'ordine',
                 prodotto: prodotto.nome,
@@ -1341,6 +1301,7 @@
                 totale: AppState.totaleCarrello,
                 timestamp: Date.now()
             });
+            */
         } catch (e) {
             Utils.handleError(e, 'aggiunta al carrello');
         }

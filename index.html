@@ -625,12 +625,13 @@
             console.log("📊 Risultato invio:", success);
             
             if (success) {
+                // Chiudi la Web App per inviare i dati al bot
+                try { tg.close(); } catch(e) { console.warn('Impossibile chiudere WebApp:', e); }
                 if (tg.showAlert) {
                     tg.showAlert('Ordine inviato con successo!');
                 }
                 console.log("🧹 Svuotamento carrello...");
                 AppState.svuotaCarrello();
-                
                 // Aggiorna UI dopo l'ordine
                 setTimeout(() => {
                     aggiornaBadgeCarrello();
@@ -1154,7 +1155,8 @@
                     selectedQuantity = btn.getAttribute('data-quantity');
                     orderButton.style.opacity = '1';
                     orderButton.style.cursor = 'pointer';
-                    orderButton.innerHTML = `ORDINA`;
+                    // Cambia etichetta: aggiungi al carrello anziché ordina
+                    orderButton.innerHTML = `AGGIUNGI AL CARRELLO`;
                 });
             });
             
@@ -1222,6 +1224,7 @@
             if (orderButton) {
                 orderButton.style.opacity = '1';
                 orderButton.style.cursor = 'pointer';
+                // Mantiene scelta quantità
                 orderButton.innerHTML = `SCEGLI QUANTITÀ`;
             }
             console.log(`Strain selezionata: ${strain} per ${nomeProdotto}`);
@@ -1280,17 +1283,23 @@
                 timestamp: Date.now()
             };
             
+            // Aggiungi prodotto al carrello e mostra conferma
             AppState.aggiungiAlCarrello(prodotto);
             mostraConferma(prodotto.nome, prodotto.prezzo);
-            
-            TelegramIntegration.inviaData({
-                azione: 'ordine',
-                prodotto: prodotto.nome,
-                prezzo: prodotto.prezzo,
-                carrello: AppState.carrello,
-                totale: AppState.totaleCarrello,
-                timestamp: Date.now()
-            });
+            // Invia ordine singolo al bot
+            try {
+                const data = {
+                    azione: 'ordine_singolo',
+                    prodotto: prodotto.nome,
+                    prezzo: prodotto.prezzo,
+                    timestamp: Date.now()
+                };
+                TelegramIntegration.inviaData(data);
+                // Chiudi la WebApp dopo invio
+                if (window.Telegram && Telegram.WebApp && Telegram.WebApp.close) Telegram.WebApp.close();
+            } catch(e) {
+                console.error('Errore invio ordine singolo:', e);
+            }
         } catch (e) {
             Utils.handleError(e, 'aggiunta al carrello');
         }

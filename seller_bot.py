@@ -4,7 +4,7 @@ import json
 import asyncio
 from datetime import datetime
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes
 import logging
 import sys
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # ⚙️ CONFIGURAZIONI PRINCIPALI
 # =====================================================
 DATABASE = 'users.db'
-BOT_TOKEN = '7929829521:AAE8uGpvQeyUirlJ9fyrirZn-tEruCcKNME'  # ⚠️ INSERISCI QUI IL NUOVO TOKEN DAL BOTFATHER
+BOT_TOKEN = '7022019844:AAFoBrSCrpK2L2Ex4ptNXn96JGsbn9_BhGY'  # Token del seller bot Selena777_bot
 ADMIN_ID = 1300395595
 WEBAPP_URL = "https://singular-wisp-d03db1.netlify.app"  # ⚠️ URL TEMPORANEO PER TEST
 
@@ -160,19 +160,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     
-    # Utente verificato - mostra bottone mini-app VERO come Notcoin!
-    keyboard = [
-        [InlineKeyboardButton("🛍️ Apri Negozio", web_app=WebAppInfo(url=WEBAPP_URL))],
-        [InlineKeyboardButton("📋 I Miei Ordini", callback_data="my_orders")]
+    # Utente verificato - mostra menu con pulsanti per apertura WebApp e per visualizzare ordini
+    buttons = [
+        [KeyboardButton("🛍️ Apri Negozio", web_app=WebAppInfo(url=WEBAPP_URL))],
+        # Usa comando /orders per mostrare gli ordini
+        [KeyboardButton("/orders")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
+    reply_markup = ReplyKeyboardMarkup(buttons, resize_keyboard=True, one_time_keyboard=True)
     name = first_name or username or "Utente"
     await update.message.reply_text(
         f"🎉 BENVENUTO {name.upper()}!\n\n"
         f"✅ Accesso autorizzato al negozio\n"
-        f"🛍️ Puoi iniziare a fare shopping\n\n"
-        f"👇 Clicca per aprire la Mini-App:",
+        f"Usa i pulsanti qui sotto per navigare:",
         reply_markup=reply_markup
     )
 
@@ -229,38 +228,25 @@ async def generate_order_receipt(order_id, context):
     else:
         customer_name = f"User {telegram_id}"
     
-    # Data formattata
-    order_date = datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S").strftime("%d/%m/%Y - %H:%M")
+    # Data formattata - usa datetime.now() per l'orario locale attuale
+    from datetime import datetime
+    order_date = datetime.now().strftime("%d/%m/%Y - %H:%M")
     
-    # Costruisci bollettino
+    # Costruisci bollettino semplificato
     receipt = f"🧾 BOLLETTINO ORDINE #{order_id}\n"
     receipt += "=" * 35 + "\n\n"
     receipt += f"👤 Cliente: {customer_name}\n"
-    receipt += f"📱 Username: @{username or 'N/A'}\n"
-    receipt += f"🆔 ID: {telegram_id}\n"
-    receipt += f"📅 Data: {order_date}\n\n"
+    receipt += f" Data: {order_date}\n\n"
     receipt += "🛒 PRODOTTI:\n"
     receipt += "-" * 35 + "\n"
     
-    total_check = 0
     for product_name, product_price, quantity in items:
         line_total = product_price * quantity
-        total_check += line_total
         receipt += f"• {product_name}\n"
         receipt += f"  €{product_price:.2f} x {quantity} = €{line_total:.2f}\n\n"
     
     receipt += "-" * 35 + "\n"
-    receipt += f"💰 TOTALE: €{total_amount:.2f}\n\n"
-    
-    status_text = {
-        'pending': '⏳ In preparazione',
-        'processing': '🔄 In lavorazione', 
-        'completed': '✅ Completato',
-        'cancelled': '❌ Annullato'
-    }.get(status, f"📦 {status.title()}")
-    
-    receipt += f"📦 STATO: {status_text}\n"
-    receipt += f"🕒 Tempo stimato: 30-45 min\n"
+    receipt += f"💰 TOTALE: €{total_amount:.2f}\n"
     receipt += "=" * 35
     
     return receipt
@@ -420,6 +406,65 @@ async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TY
     
     if query.data == "my_orders":
         await my_orders_callback(query, context)
+    elif query.data.startswith("order_confirm_"):
+        await handle_admin_order_action(query, context, "confirm")
+    elif query.data.startswith("order_cancel_"):
+        await handle_admin_order_action(query, context, "cancel")
+
+async def handle_admin_order_action(query, context, action):
+    """Gestisce le azioni admin sui bottoni ordine"""
+    if query.from_user.id != ADMIN_ID:
+        await query.edit_message_text("❌ Non autorizzato")
+        return
+    
+    # Estrai order_id dal callback_data
+    order_id = int(query.data.split("_")[-1])
+    
+    # Aggiorna stato ordine nel database
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    if action == "confirm":
+        new_status = "confirmed"
+        status_text = "✅ CONFERMATO"
+        c.execute('UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
+                  (new_status, order_id))
+    else:  # cancel
+        new_status = "cancelled"
+        status_text = "❌ ANNULLATO"
+        c.execute('UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
+                  (new_status, order_id))
+    
+    conn.commit()
+    conn.close()
+    
+    # Aggiorna il messaggio rimuovendo i pulsanti
+    await query.edit_message_text(
+        f"{query.message.text}\n\n🔄 STATO AGGIORNATO: {status_text}",
+        reply_markup=None
+    )
+    
+    # Notifica il cliente
+    order, items = get_order_details(order_id)
+    if order:
+        telegram_id = order[1]
+        try:
+            if action == "confirm":
+                await context.bot.send_message(
+                    telegram_id,
+                    f"✅ Ordine #{order_id} CONFERMATO!\n\n"
+                    f"Il tuo ordine è stato confermato e verrà preparato a breve.\n"
+                    f"Tempo stimato: 30-45 minuti."
+                )
+            else:
+                await context.bot.send_message(
+                    telegram_id,
+                    f"❌ Ordine #{order_id} ANNULLATO\n\n"
+                    f"Il tuo ordine è stato annullato.\n"
+                    f"Per informazioni contatta il supporto."
+                )
+        except Exception as e:
+            logger.error(f"Errore notifica cliente: {e}")
 
 async def my_orders_callback(query, context):
     """Mostra ordini dell'utente da callback"""
@@ -493,11 +538,170 @@ def main():
         
         application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data_handler))
         
-        # Handler DEBUG per TUTTI i messaggi
+        # Handler SUPER SEMPLICE per TUTTI i messaggi
         async def debug_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            logger.info(f"🔍 MESSAGGIO RICEVUTO: {update.message}")
-            if hasattr(update.message, 'web_app_data'):
-                logger.info(f"🔥 WEBAPP DATA TROVATO: {update.message.web_app_data}")
+            logger.info(f"�🔥🔥 MESSAGGIO RICEVUTO DA {update.effective_user.id if update.effective_user else 'UNKNOWN'}")
+            logger.info(f"📝 Tipo messaggio: {type(update.message) if update.message else 'NO MESSAGE'}")
+            
+            # Se è un messaggio con web_app_data
+            if update.message and hasattr(update.message, 'web_app_data') and update.message.web_app_data:
+                logger.info(f"🌐 WEB APP DATA RICEVUTO: {update.message.web_app_data.data}")
+                
+                # Elabora ordine in modo super semplice
+                try:
+                    data = json.loads(update.message.web_app_data.data)
+                    user = update.effective_user
+                    
+                    # Salva ordine nel database
+                    conn = sqlite3.connect(DATABASE)
+                    c = conn.cursor()
+                    c.execute('''INSERT INTO orders (telegram_id, username, order_data, total_amount)
+                                 VALUES (?, ?, ?, ?)''',
+                              (user.id, user.username or 'unknown', json.dumps(data), data.get('totale', 0)))
+                    order_id = c.lastrowid
+                    conn.commit()
+                    conn.close()
+                    
+                    # Invia bollettino al cliente
+                    await update.message.reply_text(
+                        f"✅ ORDINE #{order_id} CONFERMATO!\n\n"
+                        f"💰 Totale: €{data.get('totale', 0):.2f}\n"
+                        f"📦 Prodotti: {len(data.get('carrello', []))}\n\n"
+                        f"Grazie per il tuo ordine!"
+                    )
+                    
+                    # Notifica admin
+                    await context.bot.send_message(
+                        chat_id=ADMIN_ID,
+                        text=f"🔔 NUOVO ORDINE #{order_id}\n\n"
+                             f"👤 Cliente: {user.first_name or ''} {user.last_name or ''}\n"
+                             f"📱 Username: @{user.username or 'N/A'}\n"
+                             f"🆔 ID: {user.id}\n"
+                             f"💰 Totale: €{data.get('totale', 0):.2f}\n"
+                             f"📦 Prodotti: {len(data.get('carrello', []))}"
+                    )
+                    
+                    logger.info(f"✅ Ordine {order_id} processato con successo!")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Errore elaborazione ordine: {e}")
+                    await update.message.reply_text("❌ Errore nell'elaborazione dell'ordine")
+        
+        application.add_handler(MessageHandler(filters.ALL, debug_all_messages))
+        
+        # Error handler
+        async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+            logger.error(msg="Eccezione:", exc_info=context.error)
+        
+        application.add_error_handler(error_handler)
+        
+        logger.info("🛍️ Seller Bot avviato con successo!")
+        logger.info(f"📍 Admin ID: {ADMIN_ID}")
+        logger.info(f"🌐 WebApp URL: {WEBAPP_URL}")
+        
+        # Avvia polling
+        application.run_polling(
+            allowed_updates=Update.ALL_TYPES,
+            drop_pending_updates=True
+        )
+        
+    except KeyboardInterrupt:
+        logger.info("⏹️ Seller Bot fermato dall'utente")
+    except Exception as e:
+        logger.error(f"❌ Errore critico: {e}", exc_info=True)
+    finally:
+        logger.info("🛑 Seller Bot terminato")
+
+# =====================================================
+# � MAIN - AVVIO BOT
+# =====================================================
+def main():
+    """Avvia il seller bot"""
+    
+    # Verifica configurazione
+    if BOT_TOKEN == 'TUO_SELLER_BOT_TOKEN_QUI':
+        logger.error("❌ ERRORE: Configura il BOT_TOKEN nel codice!")
+        return
+    
+    if WEBAPP_URL == "http://192.168.1.2:3000":
+        logger.warning("⚠️ Ricorda di configurare WEBAPP_URL con il tuo IP!")
+    
+    try:
+        # Inizializza database
+        init_orders_db()
+        
+        # Crea application
+        application = Application.builder().token(BOT_TOKEN).build()
+        
+        # Handler comandi
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("orders", my_orders))
+        application.add_handler(CommandHandler("help", help_command))
+        
+        # Handler callback query
+        application.add_handler(CallbackQueryHandler(handle_callback_query))
+        
+        # Handler admin
+        application.add_handler(CommandHandler("admin_orders", admin_orders))
+        
+        # Handler dati da mini-app CON SUPER LOGGING
+        async def webapp_data_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            logger.info("🔥🔥🔥 RICEVUTO QUALCOSA DA WEBAPP! 🔥🔥🔥")
+            logger.info(f"Update completo: {update}")
+            logger.info(f"Message: {update.message}")
+            logger.info(f"Effective message: {update.effective_message}")
+            await handle_webapp_data(update, context)
+        
+        application.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data_handler))
+        
+        # Handler SUPER SEMPLICE per TUTTI i messaggi
+        async def debug_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            logger.info(f"�🔥🔥 MESSAGGIO RICEVUTO DA {update.effective_user.id if update.effective_user else 'UNKNOWN'}")
+            logger.info(f"📝 Tipo messaggio: {type(update.message) if update.message else 'NO MESSAGE'}")
+            
+            # Se è un messaggio con web_app_data
+            if update.message and hasattr(update.message, 'web_app_data') and update.message.web_app_data:
+                logger.info(f"🌐 WEB APP DATA RICEVUTO: {update.message.web_app_data.data}")
+                
+                # Elabora ordine in modo super semplice
+                try:
+                    data = json.loads(update.message.web_app_data.data)
+                    user = update.effective_user
+                    
+                    # Salva ordine nel database
+                    conn = sqlite3.connect(DATABASE)
+                    c = conn.cursor()
+                    c.execute('''INSERT INTO orders (telegram_id, username, order_data, total_amount)
+                                 VALUES (?, ?, ?, ?)''',
+                              (user.id, user.username or 'unknown', json.dumps(data), data.get('totale', 0)))
+                    order_id = c.lastrowid
+                    conn.commit()
+                    conn.close()
+                    
+                    # Invia bollettino al cliente
+                    await update.message.reply_text(
+                        f"✅ ORDINE #{order_id} CONFERMATO!\n\n"
+                        f"💰 Totale: €{data.get('totale', 0):.2f}\n"
+                        f"📦 Prodotti: {len(data.get('carrello', []))}\n\n"
+                        f"Grazie per il tuo ordine!"
+                    )
+                    
+                    # Notifica admin
+                    await context.bot.send_message(
+                        chat_id=ADMIN_ID,
+                        text=f"🔔 NUOVO ORDINE #{order_id}\n\n"
+                             f"👤 Cliente: {user.first_name or ''} {user.last_name or ''}\n"
+                             f"📱 Username: @{user.username or 'N/A'}\n"
+                             f"🆔 ID: {user.id}\n"
+                             f"💰 Totale: €{data.get('totale', 0):.2f}\n"
+                             f"📦 Prodotti: {len(data.get('carrello', []))}"
+                    )
+                    
+                    logger.info(f"✅ Ordine {order_id} processato con successo!")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Errore elaborazione ordine: {e}")
+                    await update.message.reply_text("❌ Errore nell'elaborazione dell'ordine")
         
         application.add_handler(MessageHandler(filters.ALL, debug_all_messages))
         

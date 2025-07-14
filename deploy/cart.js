@@ -440,121 +440,84 @@
             const originalNotifica = AppState.notificaCambiamento;
             AppState.notificaCambiamento = () => {
                 // Prima chiama funzioni originali (tranne aggiornaBadgeCarrello che non esiste più)
-                if (window.setupMainButton) setupMainButton();
-                if (window.inviaStatoATelegram) inviaStatoATelegram();
-                
-                // Poi aggiorna UI carrello
+                if (originalNotifica) {
+                    originalNotifica.call(AppState);
+                }
+                // Poi aggiorna la UI del carrello
                 this.updateCartUI();
-                this.animateCartButton();
             };
         }
 
         toggleCart() {
             this.isExpanded = !this.isExpanded;
             const expandedCart = document.getElementById('expandedCart');
+            expandedCart.classList.toggle('active', this.isExpanded);
+        }
+
+        updateCartUI() {
+            const { carrello, totaleCarrello } = AppState;
             
-            if (this.isExpanded) {
-                this.hideQuickInfo();
-                expandedCart.classList.add('active');
-                this.renderCartItems();
+            // Aggiorna badge
+            const badge = document.getElementById('cartBadge');
+            badge.textContent = carrello.length;
+            badge.classList.toggle('active', carrello.length > 0);
+            if (carrello.length > 0) {
+                document.getElementById('floatingCartButton').classList.add('bounce');
+                setTimeout(() => document.getElementById('floatingCartButton').classList.remove('bounce'), 500);
+            }
+            
+            // Aggiorna contatore header
+            document.getElementById('cartItemCount').textContent = `(${carrello.length})`;
+            
+            // Aggiorna totale
+            document.getElementById('cartTotalAmount').textContent = `€${totaleCarrello.toFixed(2)}`;
+            
+            // Aggiorna lista prodotti
+            const itemsList = document.getElementById('cartItemsList');
+            if (carrello.length === 0) {
+                itemsList.innerHTML = `
+                    <div class="empty-cart-message">
+                        <div class="empty-cart-icon">🛒</div>
+                        <h4>Il tuo carrello è vuoto</h4>
+                        <p>Aggiungi prodotti dal negozio per iniziare.</p>
+                    </div>
+                `;
             } else {
-                expandedCart.classList.remove('active');
+                itemsList.innerHTML = carrello.map((item, index) => `
+                    <div class="cart-item-expanded">
+                        <div style="flex: 1; margin-right: 10px;">
+                            <div style="font-weight: bold;">${item.nome}</div>
+                            <div>€${item.prezzo.toFixed(2)}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: bold;">€${item.prezzo.toFixed(2)}</span>
+                            <button class="remove-item-btn" onclick="cartManager.removeItem(${index})">×</button>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
         showQuickInfo() {
-            if (this.isExpanded || AppState.carrello.length === 0) return;
+            if (this.isExpanded) return;
+            
+            const quickInfo = document.getElementById('cartQuickInfo');
+            const { carrello, totaleCarrello } = AppState;
+            
+            if (carrello.length > 0) {
+                quickInfo.textContent = `${carrello.length} prodotti - Totale: €${totaleCarrello.toFixed(2)}`;
+            } else {
+                quickInfo.textContent = 'Il carrello è vuoto';
+            }
+            
+            quickInfo.classList.add('show');
             
             clearTimeout(this.quickInfoTimeout);
-            const quickInfo = document.getElementById('cartQuickInfo');
-            quickInfo.innerHTML = `
-                🛒 ${AppState.carrello.length} prodotti • €${AppState.totaleCarrello}
-            `;
-            quickInfo.classList.add('show');
+            this.quickInfoTimeout = setTimeout(() => quickInfo.classList.remove('show'), 2500);
         }
 
         hideQuickInfo() {
-            clearTimeout(this.quickInfoTimeout);
-            this.quickInfoTimeout = setTimeout(() => {
-                const quickInfo = document.getElementById('cartQuickInfo');
-                quickInfo.classList.remove('show');
-            }, 200);
-        }
-
-        updateCartUI() {
-            // Aggiorna badge
-            const badge = document.getElementById('cartBadge');
-            const count = AppState.carrello.length;
-            
-            if (count > 0) {
-                badge.textContent = count;
-                badge.classList.add('active');
-            } else {
-                badge.classList.remove('active');
-                if (this.isExpanded) {
-                    this.toggleCart();
-                }
-            }
-            
-            // Aggiorna contatore header
-            const itemCount = document.getElementById('cartItemCount');
-            if (itemCount) {
-                itemCount.textContent = `(${count})`;
-            }
-            
-            // Aggiorna totale
-            const totalAmount = document.getElementById('cartTotalAmount');
-            if (totalAmount) {
-                totalAmount.textContent = `€${AppState.totaleCarrello}`;
-            }
-            
-            // Se espanso, aggiorna lista
-            if (this.isExpanded) {
-                this.renderCartItems();
-            }
-        }
-
-        renderCartItems() {
-            const container = document.getElementById('cartItemsList');
-            
-            if (AppState.carrello.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-cart-message">
-                        <div class="empty-cart-icon">🛒</div>
-                        <h4>Carrello Vuoto</h4>
-                        <p>Aggiungi prodotti per continuare</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = AppState.carrello.map((item, index) => {
-                // Estrai info dal nome
-                const parts = item.nome.split(' (');
-                const productName = parts[0];
-                const details = parts[1] ? parts[1].replace(')', '') : '';
-                
-                return `
-                    <div class="cart-item-expanded">
-                        <div style="flex: 1;">
-                            <div style="font-weight: bold; color: #333; margin-bottom: 2px;">
-                                ${this.sanitizeHTML(productName)}
-                            </div>
-                            <div style="font-size: 11px; color: #667eea;">
-                                🧬 ${this.sanitizeHTML(details)}
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-weight: bold; color: #48bb78; font-size: 14px;">
-                                €${item.prezzo}
-                            </span>
-                            <button class="remove-item-btn" onclick="cartManager.removeItem(${index})">
-                                ×
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            document.getElementById('cartQuickInfo').classList.remove('show');
         }
 
         removeItem(index) {
@@ -562,10 +525,8 @@
         }
 
         clearCart() {
-            if (confirm('Sei sicuro di voler svuotare il carrello?')) {
-                AppState.svuotaCarrello();
-                this.showNotification('🗑️ Carrello svuotato!', '#ff4757');
-            }
+            AppState.svuotaCarrello();
+            this.showNotification('🗑️ Carrello svuotato', '#ff4757');
         }
 
         checkout() {
@@ -574,80 +535,69 @@
                 return;
             }
             
-            // Chiudi carrello
-            this.toggleCart();
+            // Chiudi il carrello per un'esperienza utente pulita
+            if (this.isExpanded) {
+                this.toggleCart();
+            }
             
-            // Processa ordine
+            // Usa la funzione globale esposta da index.html per inviare l'ordine
             if (window.processaOrdineFinale) {
+                console.log("🚀 Chiamata a processaOrdineFinale dal carrello...");
                 window.processaOrdineFinale();
             } else {
-                console.log('Ordine processato:', AppState.carrello);
-                this.showNotification('✅ Ordine Confermato!', '#48bb78');
-                AppState.svuotaCarrello();
+                // Fallback nel caso in cui la funzione non sia disponibile
+                console.error("❌ Funzione processaOrdineFinale non trovata!");
+                this.showNotification('Errore: Impossibile inviare l\'ordine.', '#ff4757');
             }
-        }
-
-        animateCartButton() {
-            const button = document.getElementById('floatingCartButton');
-            button.classList.add('bounce');
-            setTimeout(() => button.classList.remove('bounce'), 500);
         }
 
         showNotification(message, color = '#48bb78') {
             const notification = document.createElement('div');
+            notification.textContent = message;
             notification.style.cssText = `
                 position: fixed;
-                top: 15px;
+                top: 20px;
                 left: 50%;
                 transform: translateX(-50%);
                 background: ${color};
                 color: white;
-                padding: 10px 20px;
+                padding: 12px 25px;
                 border-radius: 20px;
                 font-weight: bold;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                z-index: 3000;
-                animation: slideInCart 0.3s ease;
-                font-size: 12px;
+                z-index: 9999;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards;
             `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
             
-            setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Utility per sanitizzare HTML
-        sanitizeHTML(str) {
-            const temp = document.createElement('div');
-            temp.textContent = str;
-            return temp.innerHTML;
+            // Aggiungi keyframes per l'animazione se non esistono già
+            if (!document.getElementById('cart-animation-styles')) {
+                const animStyle = document.createElement('style');
+                animStyle.id = 'cart-animation-styles';
+                animStyle.textContent = `
+                    @keyframes slideIn {
+                        from { opacity: 0; transform: translate(-50%, -20px); }
+                        to { opacity: 1; transform: translate(-50%, 0); }
+                    }
+                    @keyframes slideOut {
+                        from { opacity: 1; transform: translate(-50%, 0); }
+                        to { opacity: 0; transform: translate(-50%, -20px); }
+                    }
+                `;
+                document.head.appendChild(animStyle);
+            }
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
         }
     }
 
-    // ==================== 🚀 INIZIALIZZAZIONE ====================
-    let cartManager;
-    
-    // Attendi che il DOM sia pronto
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            cartManager = new CartManager();
-            window.cartManager = cartManager;
-        });
-    } else {
-        cartManager = new CartManager();
-        window.cartManager = cartManager;
-    }
+    // ==================== ✨ INIZIALIZZAZIONE ====================
+    // Crea istanza globale del gestore carrello
+    window.cartManager = new CartManager();
 
-    // ==================== 🔄 SOSTITUISCI FUNZIONE aggiornaBadgeCarrello ====================
-    // Questa funzione viene chiamata da altri punti del codice, quindi la creiamo vuota
-    window.aggiornaBadgeCarrello = function() {
-        // Ora gestita internamente da CartManager
-        if (cartManager) {
-            cartManager.updateCartUI();
-        }
-    };
+    // Esponi funzioni globali per i bottoni inline
+    window.cartManager.clearCart = window.cartManager.clearCart.bind(window.cartManager);
+    window.cartManager.checkout = window.cartManager.checkout.bind(window.cartManager);
+    window.cartManager.removeItem = window.cartManager.removeItem.bind(window.cartManager);
 
 })();
