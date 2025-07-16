@@ -19,7 +19,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# =====================================================
+# ================    # Invia ogni punto come messaggio separato
+    for point_id, name, address, google_maps_url, apple_maps_url, photo_file_id in points:
+        point_text = f"📍 PUNTO #{point_id}\n\n"
+        point_text += f"🏪 Nome: {name}\n"
+        point_text += f"📍 Indirizzo: {address}\n"
+        
+        # Link Google Maps
+        if google_maps_url:
+            point_text += f"🗺️ Google Maps: {google_maps_url}\n"
+        else:
+            point_text += f"🗺️ Google Maps: Non disponibile\n"
+        
+        # Link Apple Maps
+        if apple_maps_url:
+            point_text += f"🍎 Apple Maps: {apple_maps_url}\n"
+        else:
+            point_text += f"🍎 Apple Maps: Non disponibile\n"
+        
+        point_text += f"📸 Foto del posto: {'Disponibile' if photo_file_id else 'Non disponibile'}\n"
+        point_text += "─" * 30===========================
 # ⚙️ CONFIGURAZIONI PRINCIPALI
 # =====================================================
 DATABASE = 'users.db'
@@ -57,9 +76,22 @@ def init_orders_db():
         FOREIGN KEY (order_id) REFERENCES orders (id)
     )''')
     
+    # Tabella punti vendita/stand
+    c.execute('''CREATE TABLE IF NOT EXISTS points (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        address TEXT NOT NULL,
+        google_maps_url TEXT,
+        apple_maps_url TEXT,
+        photo_file_id TEXT,
+        is_active BOOLEAN DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
     conn.commit()
     conn.close()
-    logger.info("Database ordini inizializzato")
+    logger.info("Database ordini e punti vendita inizializzato")
 
 # =====================================================
 # 🔍 UTILITY FUNCTIONS
@@ -134,6 +166,55 @@ def get_order_details(order_id):
     
     conn.close()
     return order, items
+
+def get_active_points():
+    """Recupera tutti i punti vendita attivi"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''SELECT id, name, address, google_maps_url, apple_maps_url, photo_file_id 
+                 FROM points WHERE is_active = 1 
+                 ORDER BY created_at DESC''')
+    result = c.fetchall()
+    conn.close()
+    return result
+
+def add_point(name, address, google_maps_url=None, apple_maps_url=None, photo_file_id=None):
+    """Aggiunge un nuovo punto vendita"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    try:
+        c.execute('''INSERT INTO points (name, address, google_maps_url, apple_maps_url, photo_file_id)
+                     VALUES (?, ?, ?, ?, ?)''',
+                  (name, address, google_maps_url, apple_maps_url, photo_file_id))
+        point_id = c.lastrowid
+        conn.commit()
+        logger.info(f"Punto vendita {point_id} aggiunto: {name}")
+        return point_id
+    except Exception as e:
+        logger.error(f"Errore aggiunta punto vendita: {e}")
+        conn.rollback()
+        return None
+    finally:
+        conn.close()
+
+def deactivate_point(point_id):
+    """Disattiva un punto vendita"""
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    try:
+        c.execute('UPDATE points SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', 
+                  (point_id,))
+        conn.commit()
+        logger.info(f"Punto vendita {point_id} disattivato")
+        return True
+    except Exception as e:
+        logger.error(f"Errore disattivazione punto vendita: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
 
 # =====================================================
 # 🚀 COMANDO /start
@@ -611,17 +692,81 @@ async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 # =====================================================
+# 📍 GESTIONE PUNTI VENDITA
+# =====================================================
+async def points_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Mostra punti vendita attivi - solo per admin"""
+    user_id = update.effective_user.id
+    
+    if user_id != ADMIN_ID:
+        await update.message.reply_text("❌ Comando riservato agli amministratori")
+        return
+    
+    logger.info(f"🔧 COMANDO /point ricevuto da admin {user_id}")
+    
+    # Recupera punti vendita attivi
+    points = get_active_points()
+    
+    if not points:
+        await update.message.reply_text(
+            "📍 NESSUN PUNTO ATTIVO\n\n"
+            "Non ci sono punti vendita attivi al momento.\n"
+            "Per aggiungere nuovi punti, contatta lo sviluppatore."
+        )
+        return
+    
+    await update.message.reply_text(f"📍 PUNTI VENDITA ATTIVI ({len(points)})\n\n")
+    
+    # Invia ogni punto come messaggio separato
+    for point_id, name, address, maps_url, photo_file_id in points:
+        point_text = f"📍 PUNTO #{point_id}\n\n"
+        point_text += f"🏪 Nome: {name}\n"
+        point_text += f"📍 Indirizzo: {address}\n"
+        
+        if maps_url:
+            point_text += f"�️ Mappe: {maps_url}\n"
+        
+        point_text += "─" * 30
+        
+        try:
+            if photo_file_id:
+                # Invia foto con descrizione
+                await context.bot.send_photo(
+                    chat_id=update.effective_chat.id,
+                    photo=photo_file_id,
+                    caption=point_text
+                )
+            else:
+                # Invia solo testo
+                await update.message.reply_text(point_text)
+                
+        except Exception as e:
+            logger.error(f"Errore invio punto {point_id}: {e}")
+            # Fallback senza foto
+            await update.message.reply_text(
+                f"{point_text}\n\n⚠️ Foto non disponibile"
+            )
+
+# =====================================================
 # ❓ COMANDO /help
 # =====================================================
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id == ADMIN_ID:
         help_text = (
             "🔧 COMANDI ADMIN SELLER BOT\n\n"
+            "📋 GESTIONE:\n"
             "• /start - Menu principale\n"
             "• /orders - Gestione ordini\n"
             "• /help - Questa guida\n\n"
+            "📍 PUNTI VENDITA:\n"
+            "• /point - Visualizza punti attivi\n"
+            "• /add_point - Aggiungi nuovo punto\n"
+            "• /edit_point - Modifica punto esistente\n"
+            "• /toggle_point - Attiva/disattiva punto\n\n"
             "Il bot riceve automaticamente gli ordini dalla mini-app\n"
-            "e genera bollettini dettagliati."
+            "e genera bollettini dettagliati.\n\n"
+            "🆕 FORMATO PUNTI:\n"
+            "Nome, Indirizzo, Indirizzo Maps, Foto del posto"
         )
     else:
         help_text = (
@@ -786,6 +931,7 @@ def main():
         # Handler comandi
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("orders", my_orders))
+        application.add_handler(CommandHandler("point", points_command))
         application.add_handler(CommandHandler("done", done_command))
         application.add_handler(CommandHandler("help", help_command))
         
