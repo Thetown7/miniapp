@@ -28,6 +28,19 @@ ADMIN_ID = 1300395595
 WEBAPP_URL = "https://singular-wisp-d03db1.netlify.app"  # ⚠️ URL TEMPORANEO PER TEST
 
 # =====================================================
+# 📍 PUNTI VENDITA (HARDCODED - MODIFICABILI DIRETTAMENTE QUI)
+# =====================================================
+PUNTI_VENDITA = [
+    {
+        "id": 1,
+        "nome": "Ponte Giacomo",
+        "apple_maps_url": "https://maps.apple.com/?address=Via%20Roma%201,%2000100%20Roma,%20Italy",
+        "google_maps_url": "https://maps.google.com/maps?q=Via+Roma+1,+Roma",
+        "foto_path": "punti_vendita/ponte_giacomo.png"  # percorso relativo alla cartella del bot
+    }
+]
+
+# =====================================================
 # 💾 INIZIALIZZAZIONE TABELLE ORDINI
 # =====================================================
 def init_orders_db():
@@ -619,7 +632,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🔧 COMANDI ADMIN SELLER BOT\n\n"
             "• /start - Menu principale\n"
             "• /orders - Gestione ordini\n"
+            "• /point - Tutti i punti vendita\n"
             "• /help - Questa guida\n\n"
+            "📍 PUNTI VENDITA:\n"
+            "• /point - Mostra tutti i punti configurati\n\n"
             "Il bot riceve automaticamente gli ordini dalla mini-app\n"
             "e genera bollettini dettagliati."
         )
@@ -628,6 +644,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "🛍️ GUIDA SHOPPING\n\n"
             "• /start - Apri il negozio\n"
             "• /orders - I tuoi ordini\n"
+            "• /point - Tutti i punti vendita\n"
             "• /help - Questa guida\n\n"
             "🔄 NUOVO FLUSSO ORDINI:\n"
             "1. Clicca 'Apri Negozio' per fare shopping\n"
@@ -640,6 +657,46 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     
     await update.message.reply_text(help_text)
+
+# =====================================================
+# 📍 GESTIONE PUNTI VENDITA
+# =====================================================
+async def point_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Gestisce il comando /point per mostrare tutti i punti vendita"""
+    user_id = update.effective_user.id
+    
+    if not PUNTI_VENDITA:
+        await update.message.reply_text("📍 Nessun punto vendita configurato al momento.")
+        return
+    
+    # Mostra tutti i punti vendita con le loro informazioni complete
+    for i, punto in enumerate(PUNTI_VENDITA):
+        # Crea il messaggio con formato richiesto
+        text = f"📍 Point {punto['nome']}\n\n"
+        text += f"🍎 Apple Maps: {punto['apple_maps_url']}\n\n"
+        text += f"🗺️ Google Maps: {punto['google_maps_url']}\n\n"
+        text += f"📸 Descrizione punto vendita:"
+
+        # Verifica se esiste una foto per questo punto
+        foto_path = punto.get('foto_path')
+        if foto_path and os.path.exists(foto_path):
+            try:
+                with open(foto_path, 'rb') as photo:
+                    await update.message.reply_photo(
+                        photo=photo,
+                        caption=text,
+                        parse_mode='Markdown'
+                    )
+                continue
+            except Exception as e:
+                logger.warning(f"Errore nell'invio della foto {foto_path}: {e}")
+                # Se errore con la foto, continua con solo testo
+                text += " (Foto non disponibile)"
+        else:
+            text += " (Foto non disponibile)"
+        
+        # Se non c'è foto o errore nel caricamento, invia solo il testo
+        await update.message.reply_text(text, parse_mode='Markdown')
 
 # =====================================================
 # 🎛️ GESTIONE CALLBACK QUERY
@@ -788,6 +845,7 @@ def main():
         application.add_handler(CommandHandler("orders", my_orders))
         application.add_handler(CommandHandler("done", done_command))
         application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("point", point_command))
         
         # Handler callback query
         application.add_handler(CallbackQueryHandler(handle_callback_query))
@@ -833,3 +891,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+# integrare il point nell processo dell'ordine poi vediamo come
